@@ -14,6 +14,16 @@ struct node{
 
 typedef struct node Node;
 
+struct code {
+    int code;
+    unsigned int len;
+};
+
+struct bytestream {
+    unsigned char *stream;
+    int len;
+};
+
 
 /**
  * @brief Huffman encodes the provided input and generates a Huffman tree.
@@ -21,7 +31,7 @@ typedef struct node Node;
  * @param input Text to be compressed
  * @param tree  The Huffman tree constructed from the input text is returned here
  */
-char *encode(const char *input, Node **tree);
+struct bytestream encode(const char *input, Node **tree);
 
 
 /**
@@ -30,7 +40,7 @@ char *encode(const char *input, Node **tree);
  * @param input Text to be decompressed
  * @param tree  The Huffman tree that was constructed from the original text
  */
-char *decode(const char *input, const Node *tree);
+char *decode(const struct bytestream input, const Node *tree);
 
  
 #endif

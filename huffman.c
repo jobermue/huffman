@@ -8,32 +8,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
+#include <limits.h>
 
 #include "huffman.h"
 
-/* static unsigned int log10(unsigned int v) */
-/* { */
-/*     return (v >= 1000000000u) ? 9 : (v >= 100000000u) ? 8 :  */
-/*         (v >= 10000000u) ? 7 : (v >= 1000000u) ? 6 :  */
-/*         (v >= 100000u) ? 5 : (v >= 10000u) ? 4 : */
-/*         (v >= 1000u) ? 3 : (v >= 100u) ? 2 : (v >= 10u) ? 1u : 0u;  */
-/* } */
-
-#define len(x) (log10(x)+1)
-
-
-
-/* 81 = 8.1%, 128 = 12.8% and so on. The 27th frequency is the space. Source is Wikipedia */
-int englishLetterFrequencies [27] = {81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130};
+#define NR_OF_CHARS (UCHAR_MAX)
+#define NR_OF_NODES (NR_OF_CHARS)
 
 /**
  * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
  *
  * @param array Array of subtrees
+ * @param nr_of_nodes Max number of nodes in forrest
  * @param differentFrom Index of a subtree in the array
  */
-static int findSmallest (Node *array[], int differentFrom)
+static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 {
     int smallest;
     int i = 0;
@@ -50,7 +39,7 @@ static int findSmallest (Node *array[], int differentFrom)
     }
 
     // find smallest node (apart from differentFrom)
-    for (i=1; i<27; i++){
+    for (i=1; i < nr_of_nodes; i++){
         if (array[i]->value == -1)
             continue;
         if (i == differentFrom)
@@ -67,30 +56,62 @@ static int findSmallest (Node *array[], int differentFrom)
  *
  * @param tree The resulting Huffman tree
  */
-static void buildHuffmanTree (Node **tree)
+static void buildHuffmanTree (Node **tree, const char *input_text)
 {
     Node *temp;
-    Node *array[27]; //TODO: replace 27 by a constant; and change to 255
-    int i, subTrees = 27;
+    Node **array;
+    int subTrees;
     int smallOne,smallTwo;
+    int letter_frequencies[NR_OF_CHARS];
 
     // initialize forest with single node trees (one per character)
-    for (i=0; i<27; i++){
-        array[i] = malloc(sizeof(Node));
-        array[i]->value = englishLetterFrequencies[i];
-        array[i]->letter = i;
-        array[i]->left = NULL;
-        array[i]->right = NULL;
+    /* for (i=0; i<NR_OF_NODES; i++){ */
+    /*     array[i] = malloc(sizeof(Node)); */
+    /*     array[i]->value = englishLetterFrequencies[i]; */
+    /*     array[i]->letter = i; */
+    /*     array[i]->left = NULL; */
+    /*     array[i]->right = NULL; */
+    /* } */
+
+    for (int i = 0; i < NR_OF_CHARS; i++) {
+        letter_frequencies[i] = 0;
+    }
+    // get letter frequencies in input text
+    for (int i = 0; i < strlen(input_text); i++) {
+        letter_frequencies[(int)input_text[i]]++;
+    }
+
+    // initialize forest with single node trees (one per character)
+    int nr_of_nodes = 0;
+    for (int i = 0; i < NR_OF_CHARS; i++) {
+        if (letter_frequencies[i] > 0) {
+            printf("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
+            nr_of_nodes++;
+        }
+    }
+    array = malloc(sizeof(Node*) * nr_of_nodes);
+    int j = 0;
+    for (int i = 0; i < NR_OF_CHARS; i++) {
+        if (letter_frequencies[i] > 0) {
+            assert (j < nr_of_nodes);
+            array[j] = malloc(sizeof(Node));
+            array[j]->value = letter_frequencies[i];
+            array[j]->letter = (char) i;
+            array[j]->left = NULL;
+            array[j]->right = NULL;
+            j++;
+        }
     }
 
     // combine subtrees into a single tree
+    subTrees = nr_of_nodes;
     while (subTrees>1){
-        smallOne = findSmallest(array, -1);
-        smallTwo = findSmallest(array, smallOne);
+        smallOne = findSmallest(array, nr_of_nodes, -1);
+        smallTwo = findSmallest(array, nr_of_nodes, smallOne);
         temp = array[smallOne];
         array[smallOne] = malloc(sizeof(Node));
         array[smallOne]->value  = temp->value + array[smallTwo]->value;
-        array[smallOne]->letter = 127; //TODO: why 127??
+        array[smallOne]->letter = 0;
         array[smallOne]->left   = array[smallTwo];
         array[smallOne]->right  = temp;
         array[smallTwo]->value  = -1; //to 'remove' node from forrest
@@ -102,19 +123,19 @@ static void buildHuffmanTree (Node **tree)
 
 /**
  * @brief Builds the table with the bits for each letter. 
- *        1 stands for binary 0 and 2 for binary 1 (used to facilitate arithmetic)
  *
  * @param codeTable
  * @param tree
  * @param code
  */
-static void fillTable(unsigned int codeTable[], Node *tree, int code)
+static void fillTable(struct code codeTable[], Node *tree, int code, int len)
 {
-    if (tree->letter < 27) { // if node is a leaf
-        codeTable[(int)tree->letter] = code;
+    
+    if ((tree->left == NULL) && (tree->right == NULL)) { // if node is a leaf
+        codeTable[(int)tree->letter] = (struct code) {code, len};
     } else {
-        fillTable(codeTable, tree->left, code*10+1);
-        fillTable(codeTable, tree->right, code*10+2);
+        fillTable(codeTable, tree->left, code<<1, len+1);
+        fillTable(codeTable, tree->right, (code<<1)|1, len+1);
     }
 }
 
@@ -124,18 +145,24 @@ static void fillTable(unsigned int codeTable[], Node *tree, int code)
  * @param codeTable    original code table created from Huffman tree
  * @param invCodeTable code table with inverted code words
  */
-static void invertCodes(unsigned int codeTable[], unsigned int invCodeTable[])
+static void invertCodes(struct code codeTable[], struct code invCodeTable[])
 {
     int i, n, copy;
 
-    for (i=0; i<27; i++){
-        n = codeTable[i];
-        copy = 0;
-        while (n > 0){
-            copy = copy * 10 + n %10;
-            n /= 10;
+    for (i=0; i<NR_OF_CHARS; i++){
+        n = codeTable[i].code;
+        if (n != -1) {
+            printf("%i\n", i);
+            printf("%08x\n",n);
+            copy = 0;
+            for (int j = 0; j<codeTable[i].len; j++) {
+                copy = (copy<<1) | (n & 0x01);
+                n = n>>1;
+                printf("n: %08x\n",n);
+            }
+            invCodeTable[i] = (struct code) {.code=copy, .len = codeTable->len};
+            printf("inv: %08x\n", copy);
         }
-        invCodeTable[i] = copy;
     }
 }
 
@@ -144,34 +171,29 @@ static void invertCodes(unsigned int codeTable[], unsigned int invCodeTable[])
  * @brief function to compress the input
  *
  * @param input Text to be compressed
- * @param codeTable Huffman code table
+ * @param codeTable inverted Huffman code table
 */
-static char* compress(char const *input, unsigned int codeTable[])
+static struct bytestream compress(const char *input, struct code codeTable[], struct code invCodeTable[])
 {
     char bit, c, x = 0;
     int n,length,bitsLeft = 8;
     int originalBits = 0, compressedBits = 0;
     int i = 0, compressedBytes = 0;
-    char *output = { 0 };
+    unsigned char *output = { 0 };
 
     c = input[i];
     while (c != 0)
     {
         originalBits++;
-        if (c==32){
-            length = len(codeTable[26]);
-            n = codeTable[26];
-        }
-        else{
-            length=len(codeTable[c-97]);
-            n = codeTable[c-97];
-        }
-
+        length = codeTable[c].len;
+        printf("length of code for %c [%08x]: %i\n", c, codeTable[c].code, length);
+        n = invCodeTable[c].code;
+ 
         while (length>0)
         {
             compressedBits++;
-            bit = n % 10 - 1;
-            n /= 10;
+            bit = (n & 0x01);
+            n = n>>1;
             x = x | bit;
             bitsLeft--;
             length--;
@@ -212,18 +234,33 @@ static char* compress(char const *input, unsigned int codeTable[])
     fprintf(stderr,"Compressed bits = %d\n",compressedBits);
     fprintf(stderr,"Saved %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
 
-    return output;
+    struct bytestream result = {.stream = output, .len = compressedBits};
+    return result;
 }
 
-char *encode(const char *input, Node **tree)
+struct bytestream encode(const char *input, Node **tree)
 {
-    unsigned int codeTable[27], invCodeTable[27];
+    struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
 
-    buildHuffmanTree(tree);
-    fillTable(codeTable, *tree, 0);
+    for (int i = 0; i < NR_OF_CHARS; i++) {
+        codeTable[i] = (struct code) {-1, 0};
+        invCodeTable[i] = (struct code) {-1, 0};
+    }
+
+    buildHuffmanTree(tree, input);
+    fillTable(codeTable, *tree, 0, 0);
+
+
+    for (int i = 0; i < NR_OF_CHARS; i++) {
+        if (codeTable[i].len != 0) {
+            printf("codeTable[%i]: %x\n", i, codeTable[i].code);
+        }
+    }
+    printf("start inversion\n");
     invertCodes(codeTable, invCodeTable);
+    printf("inversion done\n");
 
-    return compress(input, invCodeTable);
+    return compress(input, codeTable, invCodeTable);
 }
 
 
@@ -233,19 +270,17 @@ char *encode(const char *input, Node **tree)
  * @param input Text to be decompressed
  * @param tree  The Huffman tree that was constructed from the original text
  */
-char *decode(char const *input, const Node *tree)
+char *decode(const struct bytestream input, const Node *tree)
 {
     const Node *current = tree;
     char c,bit;
     unsigned char mask = 1 << 7;
-    int j = 0;
     int i = 0, decompressedBytes = 0;
     char *output = { 0 };
 
-    c = input[j];
-    while (c != 0)
-    {
-        for (i=0;i<8;i++){
+    for (int j = 0; j*8 < input.len; j++) {
+        c = input.stream[j];
+        for (i=0;i<8 && j*8+i<input.len;i++){
             bit = c & mask;
             c = c << 1;
             if (bit==0)
@@ -253,14 +288,10 @@ char *decode(char const *input, const Node *tree)
             else
                 current = current->right;
 
-            if(current->letter == 127)
+            if((current->left != NULL) || (current->right != NULL))
                 continue;
 
-            char current_c;
-            if (current->letter==26)
-                current_c = 32;
-            else
-                current_c = current->letter + 97;
+            char current_c = current->letter;
 
             decompressedBytes++;
             output = realloc(output, decompressedBytes);
@@ -269,8 +300,6 @@ char *decode(char const *input, const Node *tree)
             current = tree;
 
         }
-        j++;
-        c = input[j];
     }
     output = realloc(output, decompressedBytes + 1);
     output[decompressedBytes] = 0;

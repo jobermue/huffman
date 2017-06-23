@@ -15,7 +15,7 @@ ELF := huffman.elf
 CC = gcc
 DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE
 CFLAGS = -Wall -g -std=c99 -pedantic $(DEFS)
-LIBS = -lm
+LIBS =
 DOXYGEN = doxygen
 
 PATMOS_HW_BASEDIR ?= /opt/zanal/patmos-src/patmos
