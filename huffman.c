@@ -23,41 +23,51 @@ typedef struct node Node;
 /* 81 = 8.1%, 128 = 12.8% and so on. The 27th frequency is the space. Source is Wikipedia */
 int englishLetterFrequencies [27] = {81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130};
 
-/*finds and returns the small sub-tree in the forrest*/
-int findSmaller (Node *array[], int differentFrom){
-    int smaller;
+/**
+ * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
+ * @param array Array of subtrees
+ * @param differentFrom Index of a subtree in the array
+ */
+int findSmallest (Node *array[], int differentFrom){
+    int smallest;
     int i = 0;
 
+    // initialize 'smallest' with a valid node (value != -1)
     while (array[i]->value==-1)
         i++;
-    smaller=i;
-    if (i==differentFrom){
+    smallest = i;
+    if (i == differentFrom){
         i++;
-        while (array[i]->value==-1)
+        while (array[i]->value == -1)
             i++;
-        smaller=i;
+        smallest = i;
     }
 
-    for (i=1;i<27;i++){
-        if (array[i]->value==-1)
+    // find smallest node (apart from differentFrom)
+    for (i=1; i<27; i++){
+        if (array[i]->value == -1)
             continue;
-        if (i==differentFrom)
+        if (i == differentFrom)
             continue;
-        if (array[i]->value<array[smaller]->value)
-            smaller = i;
+        if (array[i]->value < array[smallest]->value)
+            smallest = i;
     }
 
-    return smaller;
+    return smallest;
 }
 
-/*builds the huffman tree and returns its address by reference*/
-void buildHuffmanTree(Node **tree){
+/**
+ * @brief Builds the Huffman tree and returns its address by reference
+ */
+void buildHuffmanTree (Node **tree)
+{
     Node *temp;
-    Node *array[27];
+    Node *array[27]; //TODO: replace 27 by a constant; and change to 255
     int i, subTrees = 27;
     int smallOne,smallTwo;
 
-    for (i=0;i<27;i++){
+    // initialize forest with single node trees (one per character)
+    for (i=0; i<27; i++){
         array[i] = malloc(sizeof(Node));
         array[i]->value = englishLetterFrequencies[i];
         array[i]->letter = i;
@@ -65,31 +75,36 @@ void buildHuffmanTree(Node **tree){
         array[i]->right = NULL;
     }
 
+    // combine subtrees into a single tree
     while (subTrees>1){
-        smallOne=findSmaller(array,-1);
-        smallTwo=findSmaller(array,smallOne);
+        smallOne = findSmallest(array, -1);
+        smallTwo = findSmallest(array, smallOne);
         temp = array[smallOne];
         array[smallOne] = malloc(sizeof(Node));
-        array[smallOne]->value=temp->value+array[smallTwo]->value;
-        array[smallOne]->letter=127;
-        array[smallOne]->left=array[smallTwo];
-        array[smallOne]->right=temp;
-        array[smallTwo]->value=-1;
+        array[smallOne]->value  = temp->value + array[smallTwo]->value;
+        array[smallOne]->letter = 127; //TODO: why 127??
+        array[smallOne]->left   = array[smallTwo];
+        array[smallOne]->right  = temp;
+        array[smallTwo]->value  = -1; //to 'remove' node from forrest
         subTrees--;
     }
 
     *tree = array[smallOne];
-
-    return;
 }
 
-/* builds the table with the bits for each letter. 1 stands for binary 0 and 2 for binary 1 (used to facilitate arithmetic)*/
-void fillTable(int codeTable[], Node *tree, int Code){
-    if (tree->letter<27)
-        codeTable[(int)tree->letter] = Code;
+/**
+ * @brief Builds the table with the bits for each letter. 
+ *        1 stands for binary 0 and 2 for binary 1 (used to facilitate arithmetic)
+ * @param codeTable
+ * @param tree
+ * @param code
+ */
+void fillTable(int codeTable[], Node *tree, int code){
+    if (tree->letter < 27)
+        codeTable[(int)tree->letter] = code;
     else{
-        fillTable(codeTable, tree->left, Code*10+1);
-        fillTable(codeTable, tree->right, Code*10+2);
+        fillTable(codeTable, tree->left, code*10+1);
+        fillTable(codeTable, tree->right, code*10+2);
     }
 
     return;
