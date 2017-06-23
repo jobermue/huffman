@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
 
 #include "huffman.h"
 
@@ -8,13 +10,8 @@ int main()
 {
     Node *tree;
     char input[] = "hello world";
-    int codeTable[27], invCodeTable[27];
 
     // start measurement
-    /* buildHuffmanTree(&tree); */
-    /* fillTable(codeTable, tree, 0); */
-    /* invertCodes(codeTable,invCodeTable); */
-    /* char *compressed = compress(input, invCodeTable); */
     char *compressed = encode(input, &tree);
     // stop measurement
 

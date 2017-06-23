@@ -9,6 +9,8 @@
 ###
 
 P = test
+OBJECTFILES=$(P).o huffman.o
+ELF := huffman.elf
 
 CC = gcc
 DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE
@@ -16,10 +18,14 @@ CFLAGS = -Wall -g -std=c99 -pedantic $(DEFS)
 LIBS = -lm
 DOXYGEN = doxygen
 
-OBJECTFILES=$(P).o huffman.o
+PATMOS_HW_BASEDIR ?= /opt/zanal/patmos-src/patmos/
+SERIAL_PORT ?= /dev/ttyS0
 
 
-all: $(P)
+
+all: $(ELF)
+
+host: $(P)
 
 
 $(P): $(OBJECTFILES) 
@@ -28,11 +34,35 @@ $(P): $(OBJECTFILES)
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-
 doxy:
 	$(DOXYGEN) ../doc/Doxyfile
 
-clean:
-	rm -f $(OBJECTFILES) $(P)
 
-.PHONY: all clean doxy
+$(ELF): test.c huffman.c
+	patmos-clang -O2 \
+	  -Xgold -T$(PATMOS_HW_BASEDIR)/hardware/spm_ram.t \
+	  -mpatmos-disable-vliw \
+	  -DUSE_SPM \
+	  -DPATMOS_ENABLE_MEASURE \
+	  -o $@ $^ \
+	  #-mpatmos-singlepath=binsearch \
+
+%.dis: %.elf
+	patmos-llvm-objdump -d $< > $@
+
+# configure the FPGA with the Patmos processor (bootloader program)
+config:
+	 config_altera -b USB-Blaster $(PATMOS_HW_BASEDIR)/hardware/quartus/altde2-70/patmos.sof
+
+# download the binary to the Patmos bootloader
+download: $(ELF)
+	 patserdow -v $(SERIAL_PORT) $<
+
+# execute with the emulator
+emulate: $(ELF)
+	 patmos-emulator $<
+
+clean:
+	rm -fr $(ELF) *.dis $(OBJECTFILES) $(P)
+
+.PHONY: all host clean doxy config download emulate
