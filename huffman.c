@@ -10,16 +10,11 @@
 #include <string.h>
 #include <math.h>
 
+#include "huffman.h"
+
 #define len(x) ((int)log10(x)+1)
 
-/* Node of the huffman tree */
-struct node{
-    int value;
-    char letter;
-    struct node *left,*right;
-};
 
-typedef struct node Node;
 
 /* 81 = 8.1%, 128 = 12.8% and so on. The 27th frequency is the space. Source is Wikipedia */
 int englishLetterFrequencies [27] = {81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130};
@@ -30,7 +25,7 @@ int englishLetterFrequencies [27] = {81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 
  * @param array Array of subtrees
  * @param differentFrom Index of a subtree in the array
  */
-int findSmallest (Node *array[], int differentFrom)
+static int findSmallest (Node *array[], int differentFrom)
 {
     int smallest;
     int i = 0;
@@ -64,7 +59,7 @@ int findSmallest (Node *array[], int differentFrom)
  *
  * @param tree The resulting Huffman tree
  */
-void buildHuffmanTree (Node **tree)
+static void buildHuffmanTree (Node **tree)
 {
     Node *temp;
     Node *array[27]; //TODO: replace 27 by a constant; and change to 255
@@ -105,7 +100,7 @@ void buildHuffmanTree (Node **tree)
  * @param tree
  * @param code
  */
-void fillTable(int codeTable[], Node *tree, int code)
+static void fillTable(int codeTable[], Node *tree, int code)
 {
     if (tree->letter < 27) { // if node is a leaf
         codeTable[(int)tree->letter] = code;
@@ -121,7 +116,7 @@ void fillTable(int codeTable[], Node *tree, int code)
  * @param codeTable    original code table created from Huffman tree
  * @param invCodeTable code table with inverted code words
  */
-void invertCodes(int codeTable[], int invCodeTable[])
+static void invertCodes(int codeTable[], int invCodeTable[])
 {
     int i, n, copy;
 
@@ -143,7 +138,7 @@ void invertCodes(int codeTable[], int invCodeTable[])
  * @param input Text to be compressed
  * @param codeTable Huffman code table
 */
-char* compress(char const *input, int codeTable[])
+static char* compress(char const *input, int codeTable[])
 {
     char bit, c, x = 0;
     int n,length,bitsLeft = 8;
@@ -209,17 +204,29 @@ char* compress(char const *input, int codeTable[])
     return output;
 }
 
-/**
- * @brief function to decompress the input
- *
- * @param input Some compressed text
- * @param tree  Hufmann tree
- */
-char *decompress(char const *input, Node *tree)
+char *encode(const char *input, Node **tree)
 {
-    Node *current = tree;
+    int codeTable[27], invCodeTable[27];
+
+    buildHuffmanTree(tree);
+    fillTable(codeTable, *tree, 0);
+    invertCodes(codeTable, invCodeTable);
+
+    return compress(input, invCodeTable);
+}
+
+
+/**
+ * @brief Decodes the provided input 
+ *
+ * @param input Text to be decompressed
+ * @param tree  The Huffman tree that was constructed from the original text
+ */
+char *decode(char const *input, const Node *tree)
+{
+    const Node *current = tree;
     char c,bit;
-    char mask = 1 << 7;
+    unsigned char mask = 1 << 7;
     int j = 0;
     int i = 0, decompressedBytes = 0;
     char *output = { 0 };
@@ -258,30 +265,4 @@ char *decompress(char const *input, Node *tree)
     output[decompressedBytes] = 0;
 
     return output;
-}
-
-int main(){
-    Node *tree;
-    char input[] = "hello world";
-    int codeTable[27], invCodeTable[27];
-
-    // start measurement
-    buildHuffmanTree(&tree);
-    fillTable(codeTable, tree, 0);
-    invertCodes(codeTable,invCodeTable);
-
-    char *compressed = compress(input, invCodeTable);
-    // stop measurement
-
-    char *decompressed = decompress(compressed, tree);
-
-    // compare decompressed with original
-    printf("original text: %s\n", input);
-    printf("decompressed:  %s\n", decompressed);
-    assert(!strcmp(input, decompressed));
-    
-    free(compressed);
-    free(decompressed);
-
-    return 0;
 }
