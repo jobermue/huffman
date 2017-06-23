@@ -4,6 +4,7 @@
 /*                                                                          */
 /****************************************************************************/
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -265,7 +266,7 @@ return;
 
 int main(){
     Node *tree;
-    char input[] = "Hello World!";
+    char input[] = "hello world";
     int codeTable[27], codeTable2[27];
 
     // start measurement
@@ -279,6 +280,9 @@ int main(){
     char *decompressed = decompress(input, tree);
 
     // compare decompressed with original
+    printf("original text: %s\n", input);
+    printf("decompressed:  %s\n", decompressed);
+    assert(!strcmp(input, decompressed));
     
     free(compressed);
     free(decompressed);
