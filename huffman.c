@@ -137,7 +137,12 @@ void invertCodes(int codeTable[], int invCodeTable[])
 }
 
 
-/*function to compress the input*/
+/**
+ * @brief function to compress the input
+ *
+ * @param input Text to be compressed
+ * @param codeTable Huffman code table
+*/
 char* compress(char const *input, int codeTable[])
 {
     char bit, c, x = 0;
@@ -204,7 +209,12 @@ char* compress(char const *input, int codeTable[])
     return output;
 }
 
-/*function to decompress the input*/
+/**
+ * @brief function to decompress the input
+ *
+ * @param input Some compressed text
+ * @param tree  Hufmann tree
+ */
 char *decompress(char const *input, Node *tree)
 {
     Node *current = tree;
@@ -246,22 +256,25 @@ char *decompress(char const *input, Node *tree)
             else
             {
                 current = current->right;
-                char current_c;
-                if (current->letter==26)
+                if (current->letter!=127)
                 {
-                    // fputc(32, output);
-                    current_c = 32;
-                }
-                else
-                {
-                    //fputc(current->letter+97,output);
-                    current_c = current->letter + 97;
-                }
-                decompressedBytes++;
-                output = realloc(output, decompressedBytes);
-                output[decompressedBytes - 1] = current_c;
+                    char current_c;
+                    if (current->letter==26)
+                    {
+                        // fputc(32, output);
+                        current_c = 32;
+                    }
+                    else
+                    {
+                        //fputc(current->letter+97,output);
+                        current_c = current->letter + 97;
+                    }
+                    decompressedBytes++;
+                    output = realloc(output, decompressedBytes);
+                    output[decompressedBytes - 1] = current_c;
 
-                current = tree;
+                    current = tree;
+                }
             }
         }
         j++;
