@@ -5,6 +5,8 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
+#include <stdint.h>
+
 /* Node of the huffman tree */
 struct node{
     int value;
@@ -14,6 +16,12 @@ struct node{
 
 typedef struct node Node;
 
+typedef struct
+{
+    char *val;
+    uint16_t *cnt;
+    uint16_t val_cnt;
+} dict_t;
 
 /**
  * @brief Huffman encodes the provided input and generates a Huffman tree.

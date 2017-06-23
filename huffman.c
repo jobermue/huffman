@@ -27,6 +27,62 @@
 /* 81 = 8.1%, 128 = 12.8% and so on. The 27th frequency is the space. Source is Wikipedia */
 int englishLetterFrequencies [27] = {81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130};
 
+dict_t dict = { .val = 0, .cnt = 0, .val_cnt = 0};
+
+void incCharInDict(dict_t *dict, char c)
+{
+    for(uint16_t i = 0; i < dict->val_cnt; i++)
+    {
+        if(dict->val[i] != c)
+            continue;
+
+        dict->cnt[i]++;
+        return;
+    }
+
+    // not found
+    dict->val_cnt++;
+    dict->val = realloc(dict->val, sizeof(char) * dict->val_cnt);
+    dict->cnt = realloc(dict->cnt, sizeof(uint16_t) * dict->val_cnt);
+
+    dict->val[dict->val_cnt - 1] = c;
+    dict->cnt[dict->val_cnt - 1] = 1;
+}
+
+uint16_t getCharCntFromDict(dict_t *dict, char c)
+{
+    for(uint16_t i = 0; i < dict->val_cnt; i++)
+    {
+        if(dict->val[i] != c)
+            continue;
+
+        return dict->cnt[i];
+    }
+    return 0;
+}
+
+uint16_t idxOfCharInDict(dict_t *dict, char c)
+{
+    for(uint16_t i = 0; i < dict->val_cnt; i++)
+    {
+        if(dict->val[i] != c)
+            continue;
+
+        return i+1;
+    }
+    return 0;
+}
+
+void createDictFromString(char const *input)
+{
+    char c;
+    while((c = *input) != 0)
+    {
+        incCharInDict(&dict, c);
+        input++;
+    }
+}
+
 /**
  * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
  *
@@ -50,7 +106,7 @@ static int findSmallest (Node *array[], int differentFrom)
     }
 
     // find smallest node (apart from differentFrom)
-    for (i=1; i<27; i++){
+    for (i=1; i<dict.val_cnt; i++){
         if (array[i]->value == -1)
             continue;
         if (i == differentFrom)
@@ -70,17 +126,22 @@ static int findSmallest (Node *array[], int differentFrom)
 static void buildHuffmanTree (Node **tree)
 {
     Node *temp;
-    Node *array[27]; //TODO: replace 27 by a constant; and change to 255
-    int i, subTrees = 27;
+    Node **array; //TODO: replace 27 by a constant; and change to 255
+    array = malloc(sizeof(*array) * dict.val_cnt);
+    int i, subTrees = dict.val_cnt;
     int smallOne,smallTwo;
 
+    static char letter = 0;
     // initialize forest with single node trees (one per character)
-    for (i=0; i<27; i++){
+    for (i=0; i<dict.val_cnt; i++)
+    {
         array[i] = malloc(sizeof(Node));
-        array[i]->value = englishLetterFrequencies[i];
-        array[i]->letter = i;
+        array[i]->value = dict.cnt[i];//englishLetterFrequencies[i];
+        array[i]->letter = letter;
         array[i]->left = NULL;
         array[i]->right = NULL;
+
+        letter++;
     }
 
     // combine subtrees into a single tree
@@ -90,7 +151,7 @@ static void buildHuffmanTree (Node **tree)
         temp = array[smallOne];
         array[smallOne] = malloc(sizeof(Node));
         array[smallOne]->value  = temp->value + array[smallTwo]->value;
-        array[smallOne]->letter = 127; //TODO: why 127??
+        //array[smallOne]->letter = 0;
         array[smallOne]->left   = array[smallTwo];
         array[smallOne]->right  = temp;
         array[smallTwo]->value  = -1; //to 'remove' node from forrest
@@ -110,7 +171,7 @@ static void buildHuffmanTree (Node **tree)
  */
 static void fillTable(unsigned int codeTable[], Node *tree, int code)
 {
-    if (tree->letter < 27) { // if node is a leaf
+    if (tree->left == NULL && tree->right == NULL) { // if node is a leaf
         codeTable[(int)tree->letter] = code;
     } else {
         fillTable(codeTable, tree->left, code*10+1);
@@ -128,7 +189,7 @@ static void invertCodes(unsigned int codeTable[], unsigned int invCodeTable[])
 {
     int i, n, copy;
 
-    for (i=0; i<27; i++){
+    for (i=0; i<dict.val_cnt; i++){
         n = codeTable[i];
         copy = 0;
         while (n > 0){
@@ -158,14 +219,9 @@ static char* compress(char const *input, unsigned int codeTable[])
     while (c != 0)
     {
         originalBits++;
-        if (c==32){
-            length = len(codeTable[26]);
-            n = codeTable[26];
-        }
-        else{
-            length=len(codeTable[c-97]);
-            n = codeTable[c-97];
-        }
+        uint16_t idx = idxOfCharInDict(&dict, c) - 1;
+        length = len(codeTable[idx]);
+        n = codeTable[idx];
 
         while (length>0)
         {
@@ -217,8 +273,12 @@ static char* compress(char const *input, unsigned int codeTable[])
 
 char *encode(const char *input, Node **tree)
 {
-    unsigned int codeTable[27], invCodeTable[27];
+    unsigned int *codeTable, *invCodeTable;
 
+    codeTable = malloc(sizeof(unsigned int) * dict.val_cnt);
+    invCodeTable = malloc(sizeof(unsigned int) * dict.val_cnt);
+
+    createDictFromString(input);
     buildHuffmanTree(tree);
     fillTable(codeTable, *tree, 0);
     invertCodes(codeTable, invCodeTable);
@@ -253,18 +313,20 @@ char *decode(char const *input, const Node *tree)
             else
                 current = current->right;
 
-            if(current->letter == 127)
+            if(!(current->right == NULL && current->left==NULL))
                 continue;
 
+            /*
             char current_c;
             if (current->letter==26)
                 current_c = 32;
             else
                 current_c = current->letter + 97;
+                */
 
             decompressedBytes++;
             output = realloc(output, decompressedBytes);
-            output[decompressedBytes - 1] = current_c;
+            output[decompressedBytes - 1] = dict.val[current->letter];
 
             current = tree;
 
