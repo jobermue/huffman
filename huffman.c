@@ -26,10 +26,12 @@ int englishLetterFrequencies [27] = {81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 
 
 /**
  * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
+ *
  * @param array Array of subtrees
  * @param differentFrom Index of a subtree in the array
  */
-int findSmallest (Node *array[], int differentFrom){
+int findSmallest (Node *array[], int differentFrom)
+{
     int smallest;
     int i = 0;
 
@@ -59,6 +61,8 @@ int findSmallest (Node *array[], int differentFrom){
 
 /**
  * @brief Builds the Huffman tree and returns its address by reference
+ *
+ * @param tree The resulting Huffman tree
  */
 void buildHuffmanTree (Node **tree)
 {
@@ -96,20 +100,42 @@ void buildHuffmanTree (Node **tree)
 /**
  * @brief Builds the table with the bits for each letter. 
  *        1 stands for binary 0 and 2 for binary 1 (used to facilitate arithmetic)
+ *
  * @param codeTable
  * @param tree
  * @param code
  */
-void fillTable(int codeTable[], Node *tree, int code){
-    if (tree->letter < 27)
+void fillTable(int codeTable[], Node *tree, int code)
+{
+    if (tree->letter < 27) { // if node is a leaf
         codeTable[(int)tree->letter] = code;
-    else{
+    } else {
         fillTable(codeTable, tree->left, code*10+1);
         fillTable(codeTable, tree->right, code*10+2);
     }
-
-    return;
 }
+
+/**
+ * @brief Invert codes (so they can be used with mod operator by compressFile function)
+ *
+ * @param codeTable    original code table created from Huffman tree
+ * @param invCodeTable code table with inverted code words
+ */
+void invertCodes(int codeTable[], int invCodeTable[])
+{
+    int i, n, copy;
+
+    for (i=0; i<27; i++){
+        n = codeTable[i];
+        copy = 0;
+        while (n > 0){
+            copy = copy * 10 + n %10;
+            n /= 10;
+        }
+        invCodeTable[i] = copy;
+    }
+}
+
 
 /*function to compress the input*/
 char* compress(char const *input, int codeTable[])
@@ -247,34 +273,17 @@ char *decompress(char const *input, Node *tree)
     return output;
 }
 
-/*invert the codes in codeTable2 so they can be used with mod operator by compressFile function*/
-void invertCodes(int codeTable[],int codeTable2[]){
-    int i, n, copy;
-
-    for (i=0;i<27;i++){
-        n = codeTable[i];
-        copy = 0;
-        while (n>0){
-            copy = copy * 10 + n %10;
-            n /= 10;
-        }
-        codeTable2[i]=copy;
-    }
-
-return;
-}
-
 int main(){
     Node *tree;
     char input[] = "hello world";
-    int codeTable[27], codeTable2[27];
+    int codeTable[27], invCodeTable[27];
 
     // start measurement
     buildHuffmanTree(&tree);
     fillTable(codeTable, tree, 0);
-    invertCodes(codeTable,codeTable2);
+    invertCodes(codeTable,invCodeTable);
 
-    char *compressed = compress(input, codeTable2);
+    char *compressed = compress(input, invCodeTable);
     // stop measurement
 
     char *decompressed = decompress(input, tree);
