@@ -286,7 +286,7 @@ int main(){
     char *compressed = compress(input, invCodeTable);
     // stop measurement
 
-    char *decompressed = decompress(input, tree);
+    char *decompressed = decompress(compressed, tree);
 
     // compare decompressed with original
     printf("original text: %s\n", input);
