@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #define len(x) ((int)log10(x)+1)
@@ -79,7 +80,7 @@ void buildHuffmanTree(Node **tree){
 
     *tree = array[smallOne];
 
-return;
+    return;
 }
 
 /* builds the table with the bits for each letter. 1 stands for binary 0 and 2 for binary 1 (used to facilitate arithmetic)*/
@@ -95,12 +96,17 @@ void fillTable(int codeTable[], Node *tree, int Code){
 }
 
 /*function to compress the input*/
-void compressFile(FILE *input, FILE *output, int codeTable[]){
+char* compress(char const *input, int codeTable[])
+{
     char bit, c, x = 0;
     int n,length,bitsLeft = 8;
     int originalBits = 0, compressedBits = 0;
+    int i = 0, compressedBytes = 0;
+    char *output = { 0 };
 
-    while ((c=fgetc(input))!=10){
+    c = input[i];
+    while (c != 0)
+    {
         originalBits++;
         if (c==32){
             length = len(codeTable[26]);
@@ -111,25 +117,41 @@ void compressFile(FILE *input, FILE *output, int codeTable[]){
             n = codeTable[c-97];
         }
 
-        while (length>0){
+        while (length>0)
+        {
             compressedBits++;
             bit = n % 10 - 1;
             n /= 10;
             x = x | bit;
             bitsLeft--;
             length--;
-            if (bitsLeft==0){
-                fputc(x,output);
+            if (bitsLeft==0)
+            {
+                //fputc(x,output);
+                compressedBytes++;
+                // increase memory by one byte
+                output = realloc(output, sizeof(char) * compressedBytes);
+                output[compressedBytes - 1] = x;
+
                 x = 0;
                 bitsLeft = 8;
             }
             x = x << 1;
         }
+        i++;
+        c = input[i];
     }
 
-    if (bitsLeft!=8){
+    if (bitsLeft!=8)
+    {
         x = x << (bitsLeft-1);
-        fputc(x,output);
+        // fputc(x,output);
+
+        compressedBytes++;
+        // increase memory by one byte
+        output = realloc(output, sizeof(char) * (compressedBytes + 1));
+        output[compressedBytes - 1] = x;
+        output[compressedBytes] = 0;
     }
 
     /*print details of compression on the screen*/
@@ -137,46 +159,76 @@ void compressFile(FILE *input, FILE *output, int codeTable[]){
     fprintf(stderr,"Compressed bits = %d\n",compressedBits);
     fprintf(stderr,"Saved %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
 
-    return;
+    return output;
 }
 
 /*function to decompress the input*/
-void decompressFile (FILE *input, FILE *output, Node *tree){
+char *decompress(char const *input, Node *tree)
+{
     Node *current = tree;
     char c,bit;
     char mask = 1 << 7;
-    int i;
+    int j = 0;
+    int i = 0, decompressedBytes = 0;
+    char *output = { 0 };
 
-    while ((c=fgetc(input))!=EOF){
-
+    c = input[j];
+    while (c != 0)
+    {
         for (i=0;i<8;i++){
             bit = c & mask;
             c = c << 1;
             if (bit==0){
                 current = current->left;
-                if (current->letter!=127){
+                if (current->letter!=127)
+                {
+                    char current_c;
                     if (current->letter==26)
-                        fputc(32, output);
+                    {
+                        // fputc(32, output);
+                        current_c = 32;
+                    }
                     else
-                        fputc(current->letter+97,output);
+                    {
+                        //fputc(current->letter+97,output);
+                        current_c = current->letter + 97;
+                    }
+                    decompressedBytes++;
+                    output = realloc(output, decompressedBytes);
+                    output[decompressedBytes - 1] = current_c;
+
                     current = tree;
                 }
             }
 
-            else{
+            else
+            {
                 current = current->right;
-                if (current->letter!=127){
-                    if (current->letter==26)
-                        fputc(32, output);
-                    else
-                        fputc(current->letter+97,output);
-                    current = tree;
+                char current_c;
+                if (current->letter==26)
+                {
+                    // fputc(32, output);
+                    current_c = 32;
                 }
+                else
+                {
+                    //fputc(current->letter+97,output);
+                    current_c = current->letter + 97;
+                }
+                decompressedBytes++;
+                output = realloc(output, decompressedBytes);
+                output[decompressedBytes - 1] = current_c;
+
+                current = tree;
             }
         }
+        j++;
+        c = input[j];
     }
+    output = realloc(output, decompressedBytes + 1);
+    output[decompressedBytes] = 0;
 
-    return;
+    return output;
 }
 
 /*invert the codes in codeTable2 so they can be used with mod operator by compressFile function*/
@@ -198,10 +250,8 @@ return;
 
 int main(){
     Node *tree;
+    char input[] = "Hello World!";
     int codeTable[27], codeTable2[27];
-    int compress;
-    char filename[20];
-    FILE *input, *output;
 
     buildHuffmanTree(&tree);
 
@@ -209,19 +259,11 @@ int main(){
 
     invertCodes(codeTable,codeTable2);
 
-    /*get input details from user*/
-    printf("Type the name of the file to process:\n");
-    scanf("%s",filename);
-    printf("Type 1 to compress and 2 to decompress:\n");
-    scanf("%d",&compress);
-
-    input = fopen(filename, "r");
-    output = fopen("output.txt","w");
-
-    if (compress==1)
-        compressFile(input,output,codeTable2);
-    else
-        decompressFile(input,output, tree);
+    char *compressed = compress(input, codeTable2);
+    char *decompressed = decompress(input, tree);
+    
+    free(compressed);
+    free(decompressed);
 
     return 0;
 }
