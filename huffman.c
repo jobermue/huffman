@@ -230,52 +230,26 @@ char *decompress(char const *input, Node *tree)
         for (i=0;i<8;i++){
             bit = c & mask;
             c = c << 1;
-            if (bit==0){
+            if (bit==0)
                 current = current->left;
-                if (current->letter!=127)
-                {
-                    char current_c;
-                    if (current->letter==26)
-                    {
-                        // fputc(32, output);
-                        current_c = 32;
-                    }
-                    else
-                    {
-                        //fputc(current->letter+97,output);
-                        current_c = current->letter + 97;
-                    }
-                    decompressedBytes++;
-                    output = realloc(output, decompressedBytes);
-                    output[decompressedBytes - 1] = current_c;
-
-                    current = tree;
-                }
-            }
-
             else
-            {
                 current = current->right;
-                if (current->letter!=127)
-                {
-                    char current_c;
-                    if (current->letter==26)
-                    {
-                        // fputc(32, output);
-                        current_c = 32;
-                    }
-                    else
-                    {
-                        //fputc(current->letter+97,output);
-                        current_c = current->letter + 97;
-                    }
-                    decompressedBytes++;
-                    output = realloc(output, decompressedBytes);
-                    output[decompressedBytes - 1] = current_c;
 
-                    current = tree;
-                }
-            }
+            if(current->letter == 127)
+                continue;
+
+            char current_c;
+            if (current->letter==26)
+                current_c = 32;
+            else
+                current_c = current->letter + 97;
+
+            decompressedBytes++;
+            output = realloc(output, decompressedBytes);
+            output[decompressedBytes - 1] = current_c;
+
+            current = tree;
+
         }
         j++;
         c = input[j];
