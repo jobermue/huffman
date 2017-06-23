@@ -253,14 +253,17 @@ int main(){
     char input[] = "Hello World!";
     int codeTable[27], codeTable2[27];
 
+    // start measurement
     buildHuffmanTree(&tree);
-
     fillTable(codeTable, tree, 0);
-
     invertCodes(codeTable,codeTable2);
 
     char *compressed = compress(input, codeTable2);
+    // stop measurement
+
     char *decompressed = decompress(input, tree);
+
+    // compare decompressed with original
     
     free(compressed);
     free(decompressed);
