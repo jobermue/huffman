@@ -12,7 +12,15 @@
 
 #include "huffman.h"
 
-#define len(x) ((int)log10(x)+1)
+/* static unsigned int log10(unsigned int v) */
+/* { */
+/*     return (v >= 1000000000u) ? 9 : (v >= 100000000u) ? 8 :  */
+/*         (v >= 10000000u) ? 7 : (v >= 1000000u) ? 6 :  */
+/*         (v >= 100000u) ? 5 : (v >= 10000u) ? 4 : */
+/*         (v >= 1000u) ? 3 : (v >= 100u) ? 2 : (v >= 10u) ? 1u : 0u;  */
+/* } */
+
+#define len(x) (log10(x)+1)
 
 
 
@@ -100,7 +108,7 @@ static void buildHuffmanTree (Node **tree)
  * @param tree
  * @param code
  */
-static void fillTable(int codeTable[], Node *tree, int code)
+static void fillTable(unsigned int codeTable[], Node *tree, int code)
 {
     if (tree->letter < 27) { // if node is a leaf
         codeTable[(int)tree->letter] = code;
@@ -116,7 +124,7 @@ static void fillTable(int codeTable[], Node *tree, int code)
  * @param codeTable    original code table created from Huffman tree
  * @param invCodeTable code table with inverted code words
  */
-static void invertCodes(int codeTable[], int invCodeTable[])
+static void invertCodes(unsigned int codeTable[], unsigned int invCodeTable[])
 {
     int i, n, copy;
 
@@ -138,7 +146,7 @@ static void invertCodes(int codeTable[], int invCodeTable[])
  * @param input Text to be compressed
  * @param codeTable Huffman code table
 */
-static char* compress(char const *input, int codeTable[])
+static char* compress(char const *input, unsigned int codeTable[])
 {
     char bit, c, x = 0;
     int n,length,bitsLeft = 8;
@@ -191,10 +199,13 @@ static char* compress(char const *input, int codeTable[])
 
         compressedBytes++;
         // increase memory by one byte
-        output = realloc(output, sizeof(char) * (compressedBytes + 1));
+        output = realloc(output, sizeof(char) * compressedBytes);
         output[compressedBytes - 1] = x;
-        output[compressedBytes] = 0;
     }
+    // increase memory by one byte
+    output = realloc(output, sizeof(char) * (compressedBytes + 1));
+    output[compressedBytes] = 0;
+
 
     /*print details of compression on the screen*/
     fprintf(stderr,"Original bits = %d\n",originalBits*8);
@@ -206,7 +217,7 @@ static char* compress(char const *input, int codeTable[])
 
 char *encode(const char *input, Node **tree)
 {
-    int codeTable[27], invCodeTable[27];
+    unsigned int codeTable[27], invCodeTable[27];
 
     buildHuffmanTree(tree);
     fillTable(codeTable, *tree, 0);

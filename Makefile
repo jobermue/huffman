@@ -18,7 +18,7 @@ CFLAGS = -Wall -g -std=c99 -pedantic $(DEFS)
 LIBS = -lm
 DOXYGEN = doxygen
 
-PATMOS_HW_BASEDIR ?= /opt/zanal/patmos-src/patmos/
+PATMOS_HW_BASEDIR ?= /opt/zanal/patmos-src/patmos
 SERIAL_PORT ?= /dev/ttyS0
 
 
@@ -44,7 +44,7 @@ $(ELF): test.c huffman.c
 	  -mpatmos-disable-vliw \
 	  -DUSE_SPM \
 	  -DPATMOS_ENABLE_MEASURE \
-	  -o $@ $^ \
+	  -o $@ $^ $(LIBS)
 	  #-mpatmos-singlepath=binsearch \
 
 %.dis: %.elf
