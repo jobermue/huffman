@@ -4,15 +4,22 @@
 #include <string.h>
 
 #include "huffman.h"
+#include "measure.h"
+#include "testdata.h"
 
-int main()
+static cycles_t cyc;
+
+
+static void run_test(const char *input)
 {
     Node *tree;
-    char input[] = "hello world";
 
     // start measurement
+    MEASUREMENT_START(cyc);
     char *compressed = encode(input, &tree);
     // stop measurement
+    MEASUREMENT_STOP(cyc);
+    MEASUREMENT_DUMP(cyc);
 
     char *decompressed = decode(compressed, tree);
 
@@ -23,6 +30,18 @@ int main()
     
     free(compressed);
     free(decompressed);
+}
+
+
+int main()
+{
+    char input[] = "hello world";
+
+    run_test(input);
+
+    for (int i = 0; i < TESTDATA_LEN; i++) {
+        run_test(test_data[i]);
+    }
 
     return 0;
 }

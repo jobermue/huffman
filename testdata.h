@@ -5,8 +5,9 @@
 #ifndef TESTDATA_H
 #define TESTDATA_H
 
+#define TESTDATA_LEN (7)
 
-const char *test_data_plaintext[] = {
+const char *test_data[TESTDATA_LEN] = {
     "aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhhiiiiiiiiiijjjjjjjjjj",
 
     "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzxxxyyyyyuvwst",
