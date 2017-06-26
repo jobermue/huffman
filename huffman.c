@@ -183,27 +183,10 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     int i = 0, compressedBytes = 0;
     unsigned char *output = { 0 };
 
-    c = input[i];
-    while (c != 0)
-    {
-        originalBits++;
-        length = codeTable[(unsigned char)c].len;
- 
-        while (length>0)
-        {
-            compressedBits++;
-            bitsLeft--;
-            length--;
-            if (bitsLeft==0)
-            {
-                compressedBytes++;
-                bitsLeft = 8;
-            }
-        }
-        i++;
-        c = input[i];
+    for (i = 0, c = input[i]; c != 0; c = input[++i]) {
+        compressedBits += codeTable[(unsigned char)c].len;
     }
-    if (bitsLeft!=8) compressedBytes++; // increase memory by one byte
+    compressedBytes = (compressedBits + 8 - 1)/8; // ceil(compressedBits/8)
     compressedBytes += 1;     // increase memory by one byte (for null termination)
     int allocatedBytes = compressedBytes;
 
