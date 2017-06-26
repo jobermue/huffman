@@ -15,7 +15,7 @@ static void run_test(const char *input)
     Node *tree;
     struct bytestream compressed;
 
-    printf("input: %s\n\n", input);
+    fprintf(stderr, "input: %s\n\n", input);
     fflush(stdout);
 
     // start measurement
@@ -28,13 +28,13 @@ static void run_test(const char *input)
     char *decompressed = decode(compressed, tree);
 
     // compare decompressed with original
-    printf("compressed:");
+    fprintf(stderr, "compressed:");
     for (int i = 0; i*8 < compressed.len; i++) {
-        printf(" %02x", (unsigned int) compressed.stream[i]);
+        fprintf(stderr, " %02x", (unsigned int) compressed.stream[i]);
     }
-    printf("\n");
-    printf("original text: %s\n", input);
-    printf("decompressed:  %s\n", decompressed);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "original text: %s\n", input);
+    fprintf(stderr, "decompressed:  %s\n", decompressed);
     assert(!strcmp(input, decompressed));
     
     free(compressed.stream);
@@ -50,17 +50,17 @@ int main()
     char input[] = "Hello World!";
 
     run_test(input);
-    printf("--------------------------------------------\n");
-    printf("    Test 'hello_world' ran successfully!\n");
-    printf("--------------------------------------------\n");
+    fprintf(stderr, "--------------------------------------------\n");
+    fprintf(stderr, "    Test 'hello_world' ran successfully!\n");
+    fprintf(stderr, "--------------------------------------------\n");
     fflush(stdout);
 
     for (int i = 0; i < TESTDATA_LEN; i++) {
-        // printf("strlen(test_data[i]): %li\n", strlen(test_data[i]));
+        // fprintf(stderr, "strlen(test_data[i]): %li\n", strlen(test_data[i]));
         run_test(test_data[i]);
-        printf("-------------------------------------\n");
-        printf("    Test %i ran successfully!\n", i);
-        printf("-------------------------------------\n\n");
+        fprintf(stderr, "-------------------------------------\n");
+        fprintf(stderr, "    Test %i ran successfully!\n", i);
+        fprintf(stderr, "-------------------------------------\n\n");
         fflush(stdout);
     }
 
@@ -71,12 +71,12 @@ int main()
     }
     input2[4095] = '\0';
     run_test(input2);
-    printf("-----------------------------------------------------\n");
-    printf("    Test 'uniform distribution' ran successfully!\n");
-    printf("-----------------------------------------------------\n");
+    fprintf(stderr, "-----------------------------------------------------\n");
+    fprintf(stderr, "    Test 'uniform distribution' ran successfully!\n");
+    fprintf(stderr, "-----------------------------------------------------\n");
 
-    printf("-------------------------------------\n");
-    printf("  All tests ran successfully!\n");
-    printf("-------------------------------------\n");
+    fprintf(stderr, "-------------------------------------\n");
+    fprintf(stderr, "  All tests ran successfully!\n");
+    fprintf(stderr, "-------------------------------------\n");
     return 0;
 }
