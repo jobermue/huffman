@@ -78,14 +78,14 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     }
     // get letter frequencies in input text
     for (int i = 0; i < strlen(input_text); i++) {
-        letter_frequencies[(int)input_text[i]]++;
+        letter_frequencies[(unsigned char)input_text[i]]++;
     }
 
     // initialize forest with single node trees (one per character)
     int nr_of_nodes = 0;
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
-            printf("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
+            fprintf(stderr, "letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
             nr_of_nodes++;
         }
     }
@@ -152,16 +152,12 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
     for (i=0; i<NR_OF_CHARS; i++){
         n = codeTable[i].code;
         if (n != -1) {
-            printf("%i\n", i);
-            printf("%08x\n",n);
             copy = 0;
             for (int j = 0; j<codeTable[i].len; j++) {
                 copy = (copy<<1) | (n & 0x01);
                 n = n>>1;
-                printf("n: %08x\n",n);
             }
             invCodeTable[i] = (struct code) {.code=copy, .len = codeTable->len};
-            printf("inv: %08x\n", copy);
         }
     }
 }
@@ -185,9 +181,8 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     while (c != 0)
     {
         originalBits++;
-        length = codeTable[c].len;
-        printf("length of code for %c [%08x]: %i\n", c, codeTable[c].code, length);
-        n = invCodeTable[c].code;
+        length = codeTable[(unsigned char)c].len;
+        n = invCodeTable[(unsigned char)c].code;
  
         while (length>0)
         {
@@ -250,15 +245,7 @@ struct bytestream encode(const char *input, Node **tree)
     buildHuffmanTree(tree, input);
     fillTable(codeTable, *tree, 0, 0);
 
-
-    for (int i = 0; i < NR_OF_CHARS; i++) {
-        if (codeTable[i].len != 0) {
-            printf("codeTable[%i]: %x\n", i, codeTable[i].code);
-        }
-    }
-    printf("start inversion\n");
     invertCodes(codeTable, invCodeTable);
-    printf("inversion done\n");
 
     return compress(input, codeTable, invCodeTable);
 }
