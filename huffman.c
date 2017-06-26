@@ -188,6 +188,39 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     {
         originalBits++;
         length = codeTable[(unsigned char)c].len;
+ 
+        while (length>0)
+        {
+            compressedBits++;
+            bitsLeft--;
+            length--;
+            if (bitsLeft==0)
+            {
+                compressedBytes++;
+                bitsLeft = 8;
+            }
+        }
+        i++;
+        c = input[i];
+    }
+    if (bitsLeft!=8) compressedBytes++; // increase memory by one byte
+    compressedBytes += 1;     // increase memory by one byte (for null termination)
+    int allocatedBytes = compressedBytes;
+
+    // allocate memory
+    output = malloc(sizeof(char) * compressedBytes);
+
+    i = 0;
+    bitsLeft = 8;
+    originalBits = 0;
+    compressedBytes = 0;
+    compressedBits = 0;
+
+    c = input[i];
+    while (c != 0)
+    {
+        originalBits++;
+        length = codeTable[(unsigned char)c].len;
         n = invCodeTable[(unsigned char)c].code;
  
         while (length>0)
@@ -202,8 +235,6 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
             {
                 //fputc(x,output);
                 compressedBytes++;
-                // increase memory by one byte
-                output = realloc(output, sizeof(char) * compressedBytes);
                 output[compressedBytes - 1] = x;
 
                 x = 0;
@@ -221,14 +252,11 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
         // fputc(x,output);
 
         compressedBytes++;
-        // increase memory by one byte
-        output = realloc(output, sizeof(char) * compressedBytes);
         output[compressedBytes - 1] = x;
     }
-    // increase memory by one byte
-    output = realloc(output, sizeof(char) * (compressedBytes + 1));
-    output[compressedBytes] = 0;
+    output[compressedBytes] = 0; // null terminate string
 
+    assert(allocatedBytes == compressedBytes+1);
 
     /*print details of compression on the screen*/
     DEBUG("Original bits = %d\n",originalBits*8);
