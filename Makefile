@@ -13,7 +13,8 @@ OBJECTFILES=$(P).o huffman.o
 ELF := huffman.elf
 
 CC = gcc
-DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE
+DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE 
+#DEFS += -DENDEBUG
 CFLAGS = -Wall -g -std=c99 -pedantic $(DEFS)
 LIBS =
 DOXYGEN = doxygen

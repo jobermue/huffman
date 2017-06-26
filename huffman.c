@@ -15,6 +15,12 @@
 #define NR_OF_CHARS (UCHAR_MAX)
 #define NR_OF_NODES (NR_OF_CHARS)
 
+#ifdef ENDEBUG
+#define DEBUG(...) do { fprintf(stderr, __VA_ARGS__); } while(0)
+#else
+#define DEBUG(...)
+#endif
+
 /**
  * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
  *
@@ -85,7 +91,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     int nr_of_nodes = 0;
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
-            fprintf(stderr, "letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
+            DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
             nr_of_nodes++;
         }
     }
@@ -225,9 +231,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 
 
     /*print details of compression on the screen*/
-    fprintf(stderr,"Original bits = %d\n",originalBits*8);
-    fprintf(stderr,"Compressed bits = %d\n",compressedBits);
-    fprintf(stderr,"Saved %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
+    DEBUG("Original bits = %d\n",originalBits*8);
+    DEBUG("Compressed bits = %d\n",compressedBits);
+    DEBUG("Saved %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
 
     struct bytestream result = {.stream = output, .len = compressedBits};
     return result;

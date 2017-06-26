@@ -9,14 +9,21 @@
 
 static cycles_t cyc;
 
+#ifdef ENDEBUG
+#define DEBUG(...) do { fprintf(stderr, __VA_ARGS__); } while(0)
+#else
+#define DEBUG(...)
+#endif
+
 
 static void run_test(const char *input)
 {
     Node *tree;
     struct bytestream compressed;
 
-    fprintf(stderr, "input: %s\n\n", input);
+    DEBUG("input: %s\n\n", input);
     fflush(stdout);
+    fflush(stderr);
 
     // start measurement
     MEASUREMENT_START(cyc);
@@ -28,13 +35,13 @@ static void run_test(const char *input)
     char *decompressed = decode(compressed, tree);
 
     // compare decompressed with original
-    fprintf(stderr, "compressed:");
+    DEBUG("compressed:");
     for (int i = 0; i*8 < compressed.len; i++) {
-        fprintf(stderr, " %02x", (unsigned int) compressed.stream[i]);
+        DEBUG(" %02x", (unsigned int) compressed.stream[i]);
     }
-    fprintf(stderr, "\n");
-    fprintf(stderr, "original text: %s\n", input);
-    fprintf(stderr, "decompressed:  %s\n", decompressed);
+    DEBUG("\n");
+    DEBUG("original text: %s\n", input);
+    DEBUG("decompressed:  %s\n", decompressed);
     assert(!strcmp(input, decompressed));
     
     free(compressed.stream);
