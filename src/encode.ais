@@ -1,0 +1,9 @@
+
+# my flow facts for encode and functions it calls
+flow ("findSmallest_while1") + ("findSmallest_while2") <= 256 ("merge_samples");
+
+# flow ("invertCodes_inner") <= (nr_of_chars+2)*(nr_of_chars-1)/2 = (256+2)*(256-1)/2 = 32895
+flow ("invertCodes_inner") <= 32895 ("invertCodes");
+
+
+flow ("compress_inner_if") <= 4096 ("compress");

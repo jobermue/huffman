@@ -38,18 +38,17 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
     i = 0;
     #pragma loopbound min 0 max 256
     /* ai: loop here max 256; */
-    while (array[i]->value==-1)
+    while (array[i]->value==-1)/* ai: label here = "findSmallest_while1"; */
         i++;
     smallest = i;
     if (i == differentFrom){
         i++;
         #pragma loopbound min 0 max 255
         /* ai: loop here max 255; */
-        while (array[i]->value == -1)
+        while (array[i]->value == -1)/* ai: label here = "findSmallest_while2"; */
             i++;
         smallest = i;
     }
-    /* TODO: add flow fact for executions of both while loops together < 256 */
 
     /* Find smallest node (apart from differentFrom) */
     #pragma loopbound min 0 max 256
@@ -79,15 +78,6 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     int subTrees;
     int smallOne,smallTwo;
     int letter_frequencies[NR_OF_CHARS];
-
-    // initialize forest with single node trees (one per character)
-    /* for (i=0; i<NR_OF_NODES; i++){ */
-    /*     array[i] = malloc(sizeof(Node)); */
-    /*     array[i]->value = englishLetterFrequencies[i]; */
-    /*     array[i]->letter = i; */
-    /*     array[i]->left = NULL; */
-    /*     array[i]->right = NULL; */
-    /* } */
 
     /* Get letter frequencies in input text */
     #pragma loopbound min 0 max 256
@@ -199,12 +189,16 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
         n = codeTable[i].code;
         if (n != -1) {
             copy = 0;
-            /* max length of a code = n */
+            /* max length of a code = max height of Huffman tree = n */
+            /* note: can be further bounded - see https://groups.google.com/forum/#!topic/comp.compression/m5pj1lDoeU8 */
+            /* TODO try to find out max iterations we can observe */
             #pragma loopbound min 0 max 256
             /* ai: loop here max 256; */
             for (int j = 0; j<codeTable[i].len; j++) {
-              /* TODO: add a flow fact here as max length of code only for 2 codes possible, others are shorter (or if all equal length, max length is not reached) */
+              /* max length of code only for 2 codes possible, others are shorter 
+               * (or if all equal length, max length is not reached) */
               /* flow is (nr_of_chars+2)*(nr_of_chars-1)/2 */
+              /* ai: label here = "invertCodes_inner"; */
                 copy = (copy<<1) | (n & 0x01);
                 n = n>>1;
             }
@@ -259,8 +253,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
         /* ai: loop here max 256; */
         while (length>0)
         {
-          /* TODO: add a flow fact here as max length of code only for 2 codes possible, others are shorter (or if all equal length, max length is not reached) */
-          /* flow is (nr_of_chars+2)*(nr_of_chars-1)/2 */
+          /* TODO: find an upper bound for flow here */
             compressedBits++;
             bit = (n & 0x01);
             n = n>>1;
@@ -270,6 +263,8 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
             if (bitsLeft==0)
             {
               //TODO: add flow fact: is executed at most 4096 times per call to compress (assuming that we actually compress input)
+              //TODO: find upper bound on compression & use that here
+              /* ai: label here = "compress_inner_if"; */
                 //fputc(x,output);
                 compressedBytes++;
                 output[compressedBytes - 1] = x;
@@ -285,7 +280,6 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 
     if (bitsLeft!=8)
     {
-      //TODO: add flow fact: is executed at most 4096-execs_of_inner_if times per call to compress (assuming that we actually compress input)
         x = x << (bitsLeft-1);
         // fputc(x,output);
 

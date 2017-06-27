@@ -47,7 +47,7 @@ doxy:
 
 
 $(TARGET).elf: $(SRCS)
-	patmos-clang -O2 \
+	patmos-clang -O0 \
 	  -Xgold -T$(PATMOS_HW_BASEDIR)/hardware/spm_ram.t \
 	  -mpatmos-disable-vliw \
 	  -DUSE_SPM \
