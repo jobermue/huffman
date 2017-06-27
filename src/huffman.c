@@ -4,8 +4,8 @@
 /*                                                                          */
 /****************************************************************************/
 
-#include <assert.h>
-#include <stdio.h>
+//#include <assert.h>
+//#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -107,7 +107,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     /* ai: loop here max 256; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
-            DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
+          //DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
             nr_of_nodes++;
         }
     }
@@ -117,7 +117,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     /* ai: loop here max 256; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
-            assert (j < nr_of_nodes);
+          //assert (j < nr_of_nodes);
             array[j] = malloc(sizeof(Node));
             array[j]->value = letter_frequencies[i];
             array[j]->letter = (char) i;
@@ -294,12 +294,12 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     }
     output[compressedBytes] = 0; // null terminate string
 
-    assert(allocatedBytes == compressedBytes+1);
+    //assert(allocatedBytes == compressedBytes+1);
 
     /*print details of compression on the screen*/
-    DEBUG("Original bits = %d\n",originalBits*8);
-    DEBUG("Compressed bits = %d\n",compressedBits);
-    DEBUG("Saved %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
+    //DEBUG("Original bits = %d\n",originalBits*8);
+    //DEBUG("Compressed bits = %d\n",compressedBits);
+    //DEBUG("Saved %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
 
     struct bytestream result = {.stream = output, .len = compressedBits};
     return result;
