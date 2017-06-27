@@ -10,7 +10,9 @@
 #include <string.h>
 #include <limits.h>
 
+#include "stack.h"
 #include "huffman.h"
+
 
 #define NR_OF_CHARS (UCHAR_MAX)
 #define NR_OF_NODES (NR_OF_CHARS)
@@ -24,16 +26,16 @@
 /**
  * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
  *
- * @param array Array of subtrees
- * @param nr_of_nodes Max number of nodes in forrest
- * @param differentFrom Index of a subtree in the array
+ * @param array          Array of subtrees
+ * @param nr_of_nodes    Max number of nodes in forrest
+ * @param differentFrom  Index of a subtree in the array
  */
 static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 {
-    int smallest;
-    int i = 0;
+    int i, smallest;
 
-    // initialize 'smallest' with a valid node (value != -1)
+    /* Initialize 'smallest' with a valid node (value != -1) */
+    i = 0;
     while (array[i]->value==-1)
         i++;
     smallest = i;
@@ -44,7 +46,7 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
         smallest = i;
     }
 
-    // find smallest node (apart from differentFrom)
+    /* Find smallest node (apart from differentFrom) */
     for (i=1; i < nr_of_nodes; i++){
         if (array[i]->value == -1)
             continue;
@@ -60,7 +62,8 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 /**
  * @brief Builds the Huffman tree and returns its address by reference
  *
- * @param tree The resulting Huffman tree
+ * @param tree        The resulting Huffman tree
+ * @param input_text  The text the Huffman tree will be created for
  */
 static void buildHuffmanTree (Node **tree, const char *input_text)
 {
@@ -79,15 +82,15 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     /*     array[i]->right = NULL; */
     /* } */
 
+    /* Get letter frequencies in input text */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         letter_frequencies[i] = 0;
     }
-    // get letter frequencies in input text
     for (int i = 0; i < strlen(input_text); i++) {
         letter_frequencies[(unsigned char)input_text[i]]++;
     }
 
-    // initialize forest with single node trees (one per character)
+    /* Initialize forest with single node trees (one per character) */
     int nr_of_nodes = 0;
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
@@ -109,7 +112,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
         }
     }
 
-    // combine subtrees into a single tree
+    /* Combine subtrees into a single tree */
     subTrees = nr_of_nodes;
     while (subTrees>1){
         smallOne = findSmallest(array, nr_of_nodes, -1);
@@ -120,7 +123,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
         array[smallOne]->letter = 0;
         array[smallOne]->left   = array[smallTwo];
         array[smallOne]->right  = temp;
-        array[smallTwo]->value  = -1; //to 'remove' node from forrest
+        array[smallTwo]->value  = -1; //to 'remove' node from forest
         subTrees--;
     }
 
@@ -130,19 +133,36 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
 /**
  * @brief Builds the table with the bits for each letter. 
  *
- * @param codeTable
- * @param tree
- * @param code
+ * @param codeTable              The resulting code table
+ * @param tree          The Huffman tree used to generate the code table
+ * @param nr_of_leaves  The maximum number of leaves in the Huffman tree      
  */
-static void fillTable(struct code codeTable[], Node *tree, int code, int len)
+static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_of_leaves)
 {
-    
-    if ((tree->left == NULL) && (tree->right == NULL)) { // if node is a leaf
-        codeTable[(int)tree->letter] = (struct code) {code, len};
-    } else {
-        fillTable(codeTable, tree->left, code<<1, len+1);
-        fillTable(codeTable, tree->right, (code<<1)|1, len+1);
+    int code = 0;
+    int len = 0;
+    Node *node;
+    struct stack *s = NULL;
+    struct stack_entry *e;
+
+    /* note: nr of inner nodes in a tree of n leaves: n-1
+     * max size of stack: n
+     */
+    s = stack_init(nr_of_leaves);
+    stack_push(s, &(struct stack_entry) {tree,0,0});
+    while (stack_size(s) > 0) {
+        e = stack_pop(s);
+        node = e->node;
+        code = e->code;
+        len = e->len;
+        if ((node->left == NULL) && (node->right == NULL)) { // if node is a leaf
+            codeTable[(int)node->letter] = (struct code) {code, len};
+        } else {
+            stack_push(s, &(struct stack_entry) {node->right, (code<<1)|1, len+1});
+            stack_push(s, &(struct stack_entry) {node->left,   code<<1,    len+1});
+        }
     }
+    return codeTable;
 }
 
 /**
@@ -260,7 +280,7 @@ struct bytestream encode(const char *input, Node **tree)
     }
 
     buildHuffmanTree(tree, input);
-    fillTable(codeTable, *tree, 0, 0);
+    fillTable(codeTable, *tree, NR_OF_CHARS);
 
     invertCodes(codeTable, invCodeTable);
 

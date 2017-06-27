@@ -21,7 +21,7 @@ struct code {
 
 struct bytestream {
     unsigned char *stream;
-    int len;
+    int len; // length in bits
 };
 
 

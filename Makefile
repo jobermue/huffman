@@ -9,7 +9,7 @@
 ###
 
 P = test
-OBJECTFILES=$(P).o huffman.o
+OBJECTFILES=$(P).o huffman.o stack.o
 ELF := huffman.elf
 
 CC = gcc
