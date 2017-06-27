@@ -16,6 +16,7 @@ CC = gcc
 DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE 
 #DEFS += -DENDEBUG
 CFLAGS = -Wall -g -std=c99 -pedantic $(DEFS)
+CFLAGS += -Wno-unknown-pragmas
 LIBS =
 DOXYGEN = doxygen
 

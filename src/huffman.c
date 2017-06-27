@@ -36,17 +36,21 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 
     /* Initialize 'smallest' with a valid node (value != -1) */
     i = 0;
+    #pragma loopbound min 0 max 256
     while (array[i]->value==-1)
         i++;
     smallest = i;
     if (i == differentFrom){
         i++;
+        #pragma loopbound min 0 max 255
         while (array[i]->value == -1)
             i++;
         smallest = i;
     }
+    /* TODO: add flow fact for executions of both while loops together < 256 */
 
     /* Find smallest node (apart from differentFrom) */
+    #pragma loopbound min 0 max 256
     for (i=1; i < nr_of_nodes; i++){
         if (array[i]->value == -1)
             continue;
@@ -83,15 +87,18 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     /* } */
 
     /* Get letter frequencies in input text */
+    #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
         letter_frequencies[i] = 0;
     }
+    #pragma loopbound min 0 max 4096
     for (int i = 0; i < strlen(input_text); i++) {
         letter_frequencies[(unsigned char)input_text[i]]++;
     }
 
     /* Initialize forest with single node trees (one per character) */
     int nr_of_nodes = 0;
+    #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
             DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
@@ -100,6 +107,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     }
     array = malloc(sizeof(Node*) * nr_of_nodes);
     int j = 0;
+    #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
             assert (j < nr_of_nodes);
@@ -113,8 +121,8 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     }
 
     /* Combine subtrees into a single tree */
-    subTrees = nr_of_nodes;
-    while (subTrees>1){
+    #pragma loopbound min 0 max 256
+    for (subTrees = nr_of_nodes; subTrees>1; subTrees--) {
         smallOne = findSmallest(array, nr_of_nodes, -1);
         smallTwo = findSmallest(array, nr_of_nodes, smallOne);
         temp = array[smallOne];
@@ -124,7 +132,6 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
         array[smallOne]->left   = array[smallTwo];
         array[smallOne]->right  = temp;
         array[smallTwo]->value  = -1; //to 'remove' node from forest
-        subTrees--;
     }
 
     *tree = array[smallOne];
@@ -147,9 +154,11 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
 
     /* note: nr of inner nodes in a tree of n leaves: n-1
      * max size of stack: n
+     * nr of total nodes (inner nodes + leaves) = 2n-1
      */
     s = stack_init(nr_of_leaves);
     stack_push(s, &(struct stack_entry) {tree,0,0});
+    #pragma loopbound min 0 max 511
     while (stack_size(s) > 0) {
         e = stack_pop(s);
         node = e->node;
@@ -175,11 +184,16 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
 {
     int i, n, copy;
 
+    #pragma loopbound min 0 max 256
     for (i=0; i<NR_OF_CHARS; i++){
         n = codeTable[i].code;
         if (n != -1) {
             copy = 0;
+            /* max length of a code = n */
+            #pragma loopbound min 0 max 256
             for (int j = 0; j<codeTable[i].len; j++) {
+              /* TODO: add a flow fact here as max length of code only for 2 codes possible, others are shorter (or if all equal length, max length is not reached) */
+              /* flow is (nr_of_chars+2)*(nr_of_chars-1)/2 */
                 copy = (copy<<1) | (n & 0x01);
                 n = n>>1;
             }
@@ -203,6 +217,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     int i = 0, compressedBytes = 0;
     unsigned char *output = { 0 };
 
+    #pragma loopbound min 0 max 4096
     for (i = 0, c = input[i]; c != 0; c = input[++i]) {
         compressedBits += codeTable[(unsigned char)c].len;
     }
@@ -215,19 +230,23 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 
     i = 0;
     bitsLeft = 8;
-    originalBits = 0;
+    originalBits = 0; //TODO: rename to originalBytes, as it actually counts bytes
     compressedBytes = 0;
     compressedBits = 0;
 
     c = input[i];
+    #pragma loopbound min 0 max 4096
     while (c != 0)
     {
         originalBits++;
         length = codeTable[(unsigned char)c].len;
         n = invCodeTable[(unsigned char)c].code;
  
+        #pragma loopbound min 0 max 256
         while (length>0)
         {
+          /* TODO: add a flow fact here as max length of code only for 2 codes possible, others are shorter (or if all equal length, max length is not reached) */
+          /* flow is (nr_of_chars+2)*(nr_of_chars-1)/2 */
             compressedBits++;
             bit = (n & 0x01);
             n = n>>1;
@@ -236,6 +255,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
             length--;
             if (bitsLeft==0)
             {
+              //TODO: add flow fact: is executed at most 4096 times per call to compress (assuming that we actually compress input)
                 //fputc(x,output);
                 compressedBytes++;
                 output[compressedBytes - 1] = x;
@@ -251,6 +271,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 
     if (bitsLeft!=8)
     {
+      //TODO: add flow fact: is executed at most 4096-execs_of_inner_if times per call to compress (assuming that we actually compress input)
         x = x << (bitsLeft-1);
         // fputc(x,output);
 
@@ -274,6 +295,7 @@ struct bytestream encode(const char *input, Node **tree)
 {
     struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
 
+    #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
         codeTable[i] = (struct code) {-1, 0};
         invCodeTable[i] = (struct code) {-1, 0};
