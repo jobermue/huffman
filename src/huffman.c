@@ -13,8 +13,8 @@
 #include "stack.h"
 #include "huffman.h"
 
-
-#define NR_OF_CHARS (UCHAR_MAX)
+#define NR_OF_ASCII_CHARS (128)
+#define NR_OF_CHARS (NR_OF_ASCII_CHARS)
 #define NR_OF_NODES (NR_OF_CHARS)
 
 #ifdef ENDEBUG
@@ -23,6 +23,7 @@
 #define DEBUG(...)
 #endif
 
+#ifdef ENDEBUG
 /**
  * @brief convert code to printable string (binary)
  */
@@ -39,6 +40,7 @@ static void print_code(const struct code *code)
     }
     fprintf(stderr, " [len: %i]", code->len);
 }
+#endif
 
 /**
  * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
