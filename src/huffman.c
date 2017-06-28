@@ -4,8 +4,8 @@
 /*                                                                          */
 /****************************************************************************/
 
-//#include <assert.h>
-//#include <stdio.h>
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -22,6 +22,23 @@
 #else
 #define DEBUG(...)
 #endif
+
+/**
+ * @brief convert code to printable string (binary)
+ */
+static void print_code(const struct code *code)
+{
+    int n = code->code;
+    for (int j = 0; j<code->len; j++) {
+        if (n & 1)
+            DEBUG("1");
+        else
+            DEBUG("0");
+
+        n >>= 1;
+    }
+    fprintf(stderr, " [len: %i]", code->len);
+}
 
 /**
  * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
@@ -97,7 +114,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     /* ai: loop here max 256; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
-          //DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
+            DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
             nr_of_nodes++;
         }
     }
@@ -107,7 +124,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     /* ai: loop here max 256; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
-          //assert (j < nr_of_nodes);
+            assert (j < nr_of_nodes);
             array[j] = malloc(sizeof(Node));
             array[j]->value = letter_frequencies[i];
             array[j]->letter = (char) i;
@@ -202,7 +219,7 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
                 copy = (copy<<1) | (n & 0x01);
                 n = n>>1;
             }
-            invCodeTable[i] = (struct code) {.code=copy, .len = codeTable->len};
+            invCodeTable[i] = (struct code) {.code=copy, .len = codeTable[i].len};
         }
     }
 }
@@ -265,7 +282,6 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
               //TODO: add flow fact: is executed at most 4096 times per call to compress (assuming that we actually compress input)
               //TODO: find upper bound on compression & use that here
               /* ai: label here = "compress_inner_if"; */
-                //fputc(x,output);
                 compressedBytes++;
                 output[compressedBytes - 1] = x;
 
@@ -281,19 +297,17 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     if (bitsLeft!=8)
     {
         x = x << (bitsLeft-1);
-        // fputc(x,output);
-
         compressedBytes++;
         output[compressedBytes - 1] = x;
     }
     output[compressedBytes] = 0; // null terminate string
 
-    //assert(allocatedBytes == compressedBytes+1);
+    assert(allocatedBytes == compressedBytes+1);
 
     /*print details of compression on the screen*/
-    //DEBUG("Original bits = %d\n",originalBits*8);
-    //DEBUG("Compressed bits = %d\n",compressedBits);
-    //DEBUG("Saved %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
+    DEBUG("Original bits = %d\n",originalBits*8);
+    DEBUG("Compressed bits = %d\n",compressedBits);
+    DEBUG("Compressed to %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
 
     struct bytestream result = {.stream = output, .len = compressedBits};
     return result;
@@ -311,8 +325,18 @@ struct bytestream encode(const char *input, Node **tree)
 
     buildHuffmanTree(tree, input);
     fillTable(codeTable, *tree, NR_OF_CHARS);
-
     invertCodes(codeTable, invCodeTable);
+
+    /* print code table */
+#ifdef ENDEBUG
+    for (int i = 0; i < NR_OF_CHARS; i++) {
+        if (invCodeTable[i].len != 0) {
+            DEBUG("codeTable[%i] - %c: ", i, (char) i);
+            print_code(&invCodeTable[i]);
+            DEBUG("\n");
+        }
+    }
+#endif
 
     return compress(input, codeTable, invCodeTable);
 }
