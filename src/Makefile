@@ -10,6 +10,7 @@
 
 TARGET = test
 SRCS = test.c huffman.c stack.c
+OBJECTFILES = test.o huffman.o stack.o
 ANALYSIS_ENTRY = huffman
 
 CC = gcc
@@ -33,8 +34,7 @@ SERIAL_PORT ?= /dev/ttyS0
 
 all: $(TARGET).elf
 
-host: $(SRCS)
-	gcc $(CFLAGS) -o $@ $^
+host: $(TARGET)
 
 $(TARGET): $(OBJECTFILES) 
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
