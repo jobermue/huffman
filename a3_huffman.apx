@@ -1,7 +1,7 @@
 <!DOCTYPE APX>
 <project xmlns="http://www.absint.com/apx" version="15.10" build="249946" target="patmos">
  <files xmlns="http://www.absint.com/apx">
-  <ais xmlns="http://www.absint.com/apx" hash="63ab8458313ce3263fa11521de60b684">src/encode.ais</ais>
+  <ais xmlns="http://www.absint.com/apx" hash="ae4da236c9bf0e096942a1d09c93b9e5">src/huffman.ais</ais>
   <executables xmlns="http://www.absint.com/apx" hash="69cd917654f708d447b7eaf2fb3c9991">src/test.elf</executables>
  </files>
  <options xmlns="http://www.absint.com/apx">
@@ -13,7 +13,7 @@
   </general_options>
  </options>
  <analyses xmlns="http://www.absint.com/apx">
-  <analysis xmlns="http://www.absint.com/apx" enabled="true" id="aiT" type="wcet_analysis">
+  <analysis xmlns="http://www.absint.com/apx" id="aiT" enabled="true" type="wcet_analysis">
    <analysis_start xmlns="http://www.absint.com/apx">encode</analysis_start>
    <ais xmlns="http://www.absint.com/apx">src/encode.ais</ais>
   </analysis>
