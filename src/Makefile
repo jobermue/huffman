@@ -11,7 +11,7 @@
 TARGET = test
 SRCS = test.c huffman.c stack.c
 OBJECTFILES = test.o huffman.o stack.o
-ANALYSIS_ENTRY = huffman
+ANALYSIS_ENTRY = encode
 
 CC = gcc
 DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE 
@@ -81,9 +81,8 @@ patmos.ais:
 platin-wca:
 	platin wcet \
 	  -b $(TARGET).elf \
-	  -i $(TARGET).pml \
 	  -i $(PATMOS_CONFIG_PATH) \
-	  -i $(TARGET).ff.pml \
+	  -i $(ANALYSIS_ENTRY).ff.pml \
 	  -e $(ANALYSIS_ENTRY) \
 	  --enable-wca --disable-ait
 

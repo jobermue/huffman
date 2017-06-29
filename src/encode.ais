@@ -14,5 +14,5 @@ flow ("fillTable_if") <= 127 ("fillTable");
 #flow ("compress_inner_while") <= 7*4095 ("compress");
 flow ("compress_inner_while") <= 28665 ("compress");
 
-#flow ("compress_inner_if") <= 7/8*4095 ("compress");
-flow ("compress_inner_if") <= 3584 ("compress");
+#flow ("compress_inner_if") <= floor(7/8*4095) ("compress");
+flow ("compress_inner_if") <= 3583 ("compress");
