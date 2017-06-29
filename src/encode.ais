@@ -1,9 +1,5 @@
-#compiler "patmos-llvm";
-
-include "patmos.ais";
-include "llvm.ais";
-
 # my flow facts for encode and functions it calls
+
 # flow ("findSmallest_while1") + ("findSmallest_while2") <= NR_OF_NODES ("findSmallest");
 flow ("findSmallest_while1") + ("findSmallest_while2") <= 127 ("findSmallest");
 

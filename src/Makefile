@@ -91,6 +91,18 @@ patmos.ais: TOOL = ait
 patmos.ais:
 	$(TOOL_CONFIG) > $@
 
+$(TARGET).dis: $(TARGET).elf
+	patmos-llvm-objdump -d -t -fpatmos-print-bytes=call $< > $@
+
+$(TARGET).sim: TOOL = pasim
+$(TARGET).sim: $(TARGET).elf
+	pasim -V $(shell $(TOOL_CONFIG)) $< 2> $@
+
+$(TARGET).trace: TOOL = pasim
+$(TARGET).trace: $(TARGET).elf
+	pasim $< --debug-fmt=trace --debug=0 --debug-file=$@ \
+	    $(shell $(TOOL_CONFIG)) -V
+
 platin-wca:
 	platin wcet \
 	  -b $(TARGET).elf \

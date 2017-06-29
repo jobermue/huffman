@@ -1,0 +1,5 @@
+#compiler "patmos-llvm";
+
+include "patmos.ais";
+include "llvm.ais";
+
