@@ -116,7 +116,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     for (int i = 0; i < NR_OF_CHARS; i++) {
         letter_frequencies[i] = 0;
     }
-    assert(strlen(input_text) < 4096);
+    //assert(strlen(input_text) < 4096);
     #pragma loopbound min 0 max 4095
     /* ai: loop here max @strlen; */
     for (int i = 0; i < strlen(input_text); i++) {
@@ -139,7 +139,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     /* ai: loop here max @nr_of_chars; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
-            assert (j < nr_of_nodes);
+          //assert (j < nr_of_nodes);
             array[j] = malloc(sizeof(Node));
             array[j]->value = letter_frequencies[i];
             array[j]->letter = (char) i;
@@ -327,7 +327,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     }
     output[compressedBytes] = 0; // null terminate string
 
-    assert(allocatedBytes == compressedBytes+1);
+    //assert(allocatedBytes == compressedBytes+1);
 
     /*print details of compression on the screen*/
     DEBUG("Original bits = %d\n",originalBits*8);
