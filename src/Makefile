@@ -18,6 +18,7 @@ DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE
 #DEFS += -DENDEBUG
 CFLAGS = -Wall -g -std=c99 -pedantic $(DEFS)
 CFLAGS += -Wno-unknown-pragmas
+CFLAGS += -O0
 LIBS =
 DOXYGEN = doxygen
 
@@ -32,7 +33,7 @@ SERIAL_PORT ?= /dev/ttyS0
 
 
 
-all: $(TARGET).elf
+all: $(TARGET).elf llvm.ais
 
 host: $(TARGET)
 
@@ -46,14 +47,26 @@ doxy:
 	$(DOXYGEN) ../doc/Doxyfile
 
 
-$(TARGET).elf: $(SRCS)
-	patmos-clang -O0 \
+$(TARGET).elf: TOOL = clang
+$(TARGET).elf $(TARGET).elf.pml: $(SRCS)
+	patmos-clang -O0 -o $(TARGET).elf  $(shell $(TOOL_CONFIG)) \
 	  -Xgold -T$(PATMOS_HW_BASEDIR)/hardware/spm_ram.t \
+	  -Xllc -mpreemit-bitcode=$(TARGET).elf.bc \
 	  -mpatmos-disable-vliw \
 	  -DUSE_SPM \
 	  -DPATMOS_ENABLE_MEASURE \
-	  -o $@ $^ $(LIBS)
-	  #-mpatmos-singlepath=binsearch \
+	  -mserialize=$(TARGET).elf.pml $^ $(LIBS)
+	  #-mpatmos-singlepath=binsearch
+# $(TARGET).elf $(TARGET).elf.pml: $(SRCS)
+# 	patmos-clang $(CFLAGS) -o $(TARGET).elf $(shell $(TOOL_CONFIG)) \
+# 	    -Xllc -mpreemit-bitcode=$(TARGET).elf.bc \
+# 	    -mserialize=$(TARGET).elf.pml $^
+	platin extract-symbols -i $(TARGET).elf.pml -o $(TARGET).elf.pml \
+	    $(TARGET).elf
+
+llvm.ais: $(TARGET).elf.pml
+	platin pml2ais --ais llvm.ais \
+	    --ais-disable-exports header,mem-addresses -i $(TARGET).elf.pml
 
 $(TARGET).sim: TOOL = pasim
 $(TARGET).sim: $(TARGET).elf
@@ -81,6 +94,7 @@ patmos.ais:
 platin-wca:
 	platin wcet \
 	  -b $(TARGET).elf \
+	  -i $(TARGET).elf.pml \
 	  -i $(PATMOS_CONFIG_PATH) \
 	  -i $(ANALYSIS_ENTRY).ff.pml \
 	  -e $(ANALYSIS_ENTRY) \
