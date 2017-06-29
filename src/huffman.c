@@ -119,7 +119,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
     //assert(strlen(input_text) < 4096);
     #pragma loopbound min 0 max 4095
     /* ai: loop here max @strlen; */
-    for (int i = 0; i < strlen(input_text); i++) {
+    for (int i = 0; /*i < 4096 && */input_text[i] != 0; i++) {
         letter_frequencies[(unsigned char)input_text[i]]++;
     }
 
