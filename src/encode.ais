@@ -1,9 +1,18 @@
 
 # my flow facts for encode and functions it calls
-flow ("findSmallest_while1") + ("findSmallest_while2") <= 256 ("merge_samples");
+# flow ("findSmallest_while1") + ("findSmallest_while2") <= NR_OF_NODES ("merge_samples");
+flow ("findSmallest_while1") + ("findSmallest_while2") <= 127 ("merge_samples");
+
+#flow ("fillTable_if") <= nr_of_leaves ("fillTable");
+flow ("fillTable_if") <= 127 ("fillTable");
 
 # flow ("invertCodes_inner") <= (nr_of_chars+2)*(nr_of_chars-1)/2 = (256+2)*(256-1)/2 = 32895
-flow ("invertCodes_inner") <= 32895 ("invertCodes");
+#flow ("invertCodes_inner") <= 32895 ("invertCodes"); has to be
+#updated, as code length could be bounded now
 
 
-flow ("compress_inner_if") <= 4096 ("compress");
+#flow ("compress_inner_while") <= 7*4095 ("compress");
+flow ("compress_inner_while") <= 28665 ("compress");
+
+#flow ("compress_inner_if") <= 7/8*4095 ("compress");
+flow ("compress_inner_if") <= 3584 ("compress");
