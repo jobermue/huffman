@@ -1,0 +1,19 @@
+<!DOCTYPE APX>
+<project xmlns="http://www.absint.com/apx" version="15.10" target="patmos" build="249946">
+ <files xmlns="http://www.absint.com/apx">
+  <ais xmlns="http://www.absint.com/apx" hash="c1ecbcd6f117be151380b4f9b0b526a1">src/patmos.ais</ais>
+  <executables xmlns="http://www.absint.com/apx" hash="69cd917654f708d447b7eaf2fb3c9991">src/test.elf</executables>
+ </files>
+ <options xmlns="http://www.absint.com/apx">
+  <analyses_options xmlns="http://www.absint.com/apx">
+   <extract_annotations_from_source_files xmlns="http://www.absint.com/apx">true</extract_annotations_from_source_files>
+   <skip_wcet_analysis_for_main_entry_if_additional_starts_are_defined xmlns="http://www.absint.com/apx">true</skip_wcet_analysis_for_main_entry_if_additional_starts_are_defined>
+  </analyses_options>
+ </options>
+ <analyses xmlns="http://www.absint.com/apx">
+  <analysis xmlns="http://www.absint.com/apx" type="wcet_analysis" enabled="true" id="aiT">
+   <analysis_start xmlns="http://www.absint.com/apx">encode</analysis_start>
+   <ais>src/patmos.ais</ais>
+  </analysis>
+ </analyses>
+</project>
