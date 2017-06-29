@@ -19,7 +19,7 @@ struct stack {
     int                capacity;
 };
 
-struct stack *stack_init(int capacity);
+struct stack *stack_init(struct stack *s, struct stack_entry *entries, int capacity);
 
 int stack_size(struct stack *s);
 

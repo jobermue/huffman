@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include "stack.h"
 
-struct stack *stack_init(int capacity)
+struct stack *stack_init(struct stack *s, struct stack_entry *entries, int capacity)
 {
-    struct stack *s = malloc(sizeof(struct stack));
-    s->data = malloc(sizeof(struct stack_entry) * capacity);
+  //    struct stack *s = malloc(sizeof(struct stack));
+  //    s->data = malloc(sizeof(struct stack_entry) * capacity);
+    s->data = entries;
     s->size = 0;
     s->capacity = capacity;
     return s;

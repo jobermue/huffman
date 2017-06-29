@@ -97,15 +97,16 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 /**
  * @brief Builds the Huffman tree and returns its address by reference
  *
+ * @param node_pool       Data structure with enough space for Huffman tree (2n-1)
  * @param tree        The resulting Huffman tree
  * @param input_text  The text the Huffman tree will be created for
  */
 /* ai: instruction buildHuffmanTree is entered with @nr_of_chars = 128;  */
 /* ai: instruction buildHuffmanTree is entered with @strlen = 4095;  */
-static void buildHuffmanTree (Node **tree, const char *input_text)
+static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_text)
 {
     Node *temp;
-    Node **array;
+    Node *array[127];
     int subTrees;
     int smallOne,smallTwo;
     int letter_frequencies[NR_OF_CHARS];
@@ -133,14 +134,13 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
             nr_of_nodes++;
         }
     }
-    array = malloc(sizeof(Node*) * nr_of_nodes);
     int j = 0;
     #pragma loopbound min 0 max 128
     /* ai: loop here max @nr_of_chars; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
           //assert (j < nr_of_nodes);
-            array[j] = malloc(sizeof(Node));
+            array[j] = &node_pool[j];
             array[j]->value = letter_frequencies[i];
             array[j]->letter = (char) i;
             array[j]->left = NULL;
@@ -156,7 +156,7 @@ static void buildHuffmanTree (Node **tree, const char *input_text)
         smallOne = findSmallest(array, nr_of_nodes, -1);
         smallTwo = findSmallest(array, nr_of_nodes, smallOne);
         temp = array[smallOne];
-        array[smallOne] = malloc(sizeof(Node));
+        array[smallOne] = &node_pool[j++];
         array[smallOne]->value  = temp->value + array[smallTwo]->value;
         array[smallOne]->letter = 0;
         array[smallOne]->left   = array[smallTwo];
@@ -181,7 +181,8 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
     int code = 0;
     int len = 0;
     Node *node;
-    struct stack *s = NULL;
+    struct stack s;
+    struct stack_entry entries[NR_OF_CHARS-1];
     struct stack_entry *e;
 
      __llvm_pcmarker(3);
@@ -190,12 +191,12 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
      * max size of stack: n
      * nr of total nodes (inner nodes + leaves) = 2n-1
      */
-    s = stack_init(nr_of_leaves);
-    stack_push(s, &(struct stack_entry) {tree,0,0});
+     stack_init(&s, entries, nr_of_leaves);
+    stack_push(&s, &(struct stack_entry) {tree,0,0});
     #pragma loopbound min 0 max 255
     /* ai: loop here max 2*@nr_of_leaves-1; */
-    while (stack_size(s) > 0) {
-        e = stack_pop(s);
+    while (stack_size(&s) > 0) {
+        e = stack_pop(&s);
         node = e->node;
         code = e->code;
         len = e->len;
@@ -204,8 +205,8 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
             __llvm_pcmarker(4);
             codeTable[(int)node->letter] = (struct code) {code, len};
         } else {
-            stack_push(s, &(struct stack_entry) {node->right, (code<<1)|1, len+1});
-            stack_push(s, &(struct stack_entry) {node->left,   code<<1,    len+1});
+            stack_push(&s, &(struct stack_entry) {node->right, (code<<1)|1, len+1});
+            stack_push(&s, &(struct stack_entry) {node->left,   code<<1,    len+1});
         }
     }
     return codeTable;
@@ -260,7 +261,8 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     int n,length,bitsLeft = 8;
     int originalBits = 0, compressedBits = 0;
     int i = 0, compressedBytes = 0;
-    unsigned char *output = { 0 };
+    //nsigned char *output = { 0 };
+    unsigned char output[(7*4095)/8];
 
      __llvm_pcmarker(5);
 
@@ -274,7 +276,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     int allocatedBytes = compressedBytes;
 
     // allocate memory
-    output = malloc(sizeof(char) * compressedBytes);
+    //output = malloc(sizeof(char) * compressedBytes);
 
     i = 0;
     bitsLeft = 8;
@@ -341,6 +343,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 struct bytestream encode(const char *input, Node **tree)
 {
     struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
+    Node array_of_nodes[NR_OF_CHARS];
 
     #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
@@ -348,7 +351,7 @@ struct bytestream encode(const char *input, Node **tree)
         invCodeTable[i] = (struct code) {-1, 0};
     }
 
-    buildHuffmanTree(tree, input);
+    buildHuffmanTree(array_of_nodes, tree, input);
     fillTable(codeTable, *tree, NR_OF_CHARS);
     invertCodes(codeTable, invCodeTable);
 
