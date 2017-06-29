@@ -1,4 +1,4 @@
-#include <stdio.h>
+//#include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
 
@@ -24,7 +24,7 @@ int stack_capacity(struct stack *s)
 void stack_push(struct stack *s, struct stack_entry *entry)
 {
     if (s->size == s->capacity) {
-        fprintf(stderr, "Error: trying to push onto full stack\n");
+      //fprintf(stderr, "Error: trying to push onto full stack\n");
         return;
     }
 
@@ -36,7 +36,7 @@ void stack_push(struct stack *s, struct stack_entry *entry)
 struct stack_entry *stack_pop(struct stack *s)
 {
     if (s->size == 0){
-        fprintf(stderr, "Error: trying to pop from empty stack\n");
+      //fprintf(stderr, "Error: trying to pop from empty stack\n");
         return NULL;
     }
 
