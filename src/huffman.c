@@ -59,15 +59,19 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
     i = 0;
     #pragma loopbound min 0 max 127
     /* ai: loop here max @nr_of_nodes; */
-    while (array[i]->value==-1)/* ai: label here = "findSmallest_while1"; */
+    while (array[i]->value==-1) {
+      /* ai: label here = "findSmallest_while1"; */
         i++;
+    }
     smallest = i;
     if (i == differentFrom){
         i++;
         #pragma loopbound min 0 max 126
         /* ai: loop here max @nr_of_nodes-1; */
-        while (array[i]->value == -1)/* ai: label here = "findSmallest_while2"; */
+        while (array[i]->value == -1) {
+          /* ai: label here = "findSmallest_while2"; */
             i++;
+        }
         smallest = i;
     }
 
