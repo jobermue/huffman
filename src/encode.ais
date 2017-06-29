@@ -16,3 +16,40 @@ flow ("compress_inner_while") <= 28665 ("compress");
 
 #flow ("compress_inner_if") <= floor(7/8*4095) ("compress");
 flow ("compress_inner_if") <= 3583 ("compress");
+
+
+## loop bounds that didn't work with source code annotations ##
+
+#buildHuffmanTree.L2
+loop (0x21d44) max 4095;
+
+#buildHuffmanTree.L4
+loop (0x21e5c) max 128;
+
+#buildHuffmanTree.L5
+loop (0x21fa8) max 126;
+
+#fillTable.L1
+loop (0x2229c) max 255;
+
+#invertCodes.L2
+#flow (0x209b4) <= 496 ("insertion_sort");
+loop (0x22504) max 15;
+
+#compress.L1
+loop (0x22660) max 4095;
+
+#compress.L2
+loop (0x22738) max 4095;
+
+#compress.L3
+loop (0x227a4) max 15;
+
+#findSmallest.L1
+loop (0x22984) max 127;
+
+#findSmallest.L2
+loop (0x22a04) max 126;
+
+#findSmallest.L3
+loop (0x22a60) max 127;
