@@ -1,0 +1,22 @@
+<!DOCTYPE APX>
+<project xmlns="http://www.absint.com/apx" target="patmos" build="249946" version="15.10">
+ <files>
+  <executables hash="3c0f8faff96d18aaf74aadf071490887">test.elf</executables>
+  <ais hash="c1ecbcd6f117be151380b4f9b0b526a1">patmos.ais</ais>
+ </files>
+ <options>
+  <general_options>
+   <include_path>%2Fhomes%2Fn0825187%2Fworkspace%2F2%2Fhuffman%2Fsrc</include_path>
+  </general_options>
+  <analyses_options>
+   <ais_source_code_annotation_prefix>ai</ais_source_code_annotation_prefix>
+   <extract_annotations_from_source_files>true</extract_annotations_from_source_files>
+  </analyses_options>
+ </options>
+ <analyses>
+  <analysis type="wcet_analysis" enabled="true" id="aiT">
+   <analysis_start>encode</analysis_start>
+   <ais>encode.ais</ais>
+  </analysis>
+ </analyses>
+</project>
