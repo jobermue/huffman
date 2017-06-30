@@ -55,7 +55,9 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 {
     int i, smallest;
 
+#ifndef HOST_COMPILE
     __llvm_pcmarker(0);
+#endif
 
     /* Initialize 'smallest' with a valid node (value != -1) */
     i = 0;
@@ -63,7 +65,9 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
     /* ai: loop here max @nr_of_nodes; */
     while (array[i]->value==-1) {
       /* ai: label here = "findSmallest_while1"; */
+#ifndef HOST_COMPILE
       __llvm_pcmarker(1);
+#endif
         i++;
     }
     smallest = i;
@@ -73,7 +77,9 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
         /* ai: loop here max @nr_of_nodes-1; */
         while (array[i]->value == -1) {
           /* ai: label here = "findSmallest_while2"; */
+#ifndef HOST_COMPILE
           __llvm_pcmarker(2);
+#endif
             i++;
         }
         smallest = i;
@@ -185,7 +191,9 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
     struct stack_entry entries[NR_OF_CHARS-1];
     struct stack_entry *e;
 
+#ifndef HOST_COMPILE
      __llvm_pcmarker(3);
+#endif
 
     /* note: nr of inner nodes in a tree of n leaves: n-1
      * max size of stack: n
@@ -202,7 +210,9 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
         len = e->len;
         if ((node->left == NULL) && (node->right == NULL)) { // if node is a leaf
             /* ai: label here = "fillTable_if"; */
+#ifndef HOST_COMPILE
             __llvm_pcmarker(4);
+#endif
             codeTable[(int)node->letter] = (struct code) {code, len};
         } else {
             stack_push(&s, &(struct stack_entry) {node->right, (code<<1)|1, len+1});
@@ -264,7 +274,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     //nsigned char *output = { 0 };
     unsigned char output[(7*4095)/8];
 
+#ifndef HOST_COMPILE
      __llvm_pcmarker(5);
+#endif
 
     #pragma loopbound min 0 max 4095
     /* ai: loop here max @strlen; */
@@ -298,7 +310,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
         while (length>0)
         {
           /* ai: label here = "compress_inner_while"; */
+#ifndef HOST_COMPILE
            __llvm_pcmarker(6);
+#endif
             compressedBits++;
             bit = (n & 0x01);
             n = n>>1;
@@ -308,7 +322,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
             if (bitsLeft==0)
             {
               /* ai: label here = "compress_inner_if"; */
+#ifndef HOST_COMPILE
                __llvm_pcmarker(7);
+#endif
                 compressedBytes++;
                 output[compressedBytes - 1] = x;
 

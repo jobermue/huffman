@@ -53,8 +53,8 @@ static void run_test(const char *input)
     DEBUG("decompressed:  %s\n", decompressed);
     assert(!strcmp(input, decompressed));
     
-    free(compressed.stream);
-    free(decompressed);
+    //free(compressed.stream);
+    //free(decompressed);
 
     fflush(stderr);
     fflush(stdout);

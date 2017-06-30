@@ -14,6 +14,7 @@ OBJECTFILES = test.o huffman.o stack.o
 ANALYSIS_ENTRY = encode
 
 CC = gcc
+#CC = clang
 DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE 
 #DEFS += -DENDEBUG
 CFLAGS = -Wall -g -std=c99 -pedantic $(DEFS)
@@ -41,7 +42,7 @@ $(TARGET): $(OBJECTFILES)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -DHOST_COMPILE -c -o $@ $<
 
 doxy:
 	$(DOXYGEN) ../doc/Doxyfile
@@ -49,7 +50,7 @@ doxy:
 
 $(TARGET).elf: TOOL = clang
 $(TARGET).elf $(TARGET).elf.pml: $(SRCS)
-	patmos-clang -O0 -o $(TARGET).elf  $(shell $(TOOL_CONFIG)) \
+	patmos-clang -O0 -g -Wall -o $(TARGET).elf  $(shell $(TOOL_CONFIG)) \
 	  -Xgold -T$(PATMOS_HW_BASEDIR)/hardware/spm_ram.t \
 	  -Xllc -mpreemit-bitcode=$(TARGET).elf.bc \
 	  -mpatmos-disable-vliw \
@@ -90,13 +91,6 @@ emulate: $(TARGET).elf
 patmos.ais: TOOL = ait
 patmos.ais:
 	$(TOOL_CONFIG) > $@
-
-$(TARGET).dis: $(TARGET).elf
-	patmos-llvm-objdump -d -t -fpatmos-print-bytes=call $< > $@
-
-$(TARGET).sim: TOOL = pasim
-$(TARGET).sim: $(TARGET).elf
-	pasim -V $(shell $(TOOL_CONFIG)) $< 2> $@
 
 $(TARGET).trace: TOOL = pasim
 $(TARGET).trace: $(TARGET).elf
