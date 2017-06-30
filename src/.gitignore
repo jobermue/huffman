@@ -1,0 +1,4 @@
+*.orig
+llvm.ais
+patmos.ais
+*.elf*
