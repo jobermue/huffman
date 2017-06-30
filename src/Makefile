@@ -14,6 +14,7 @@ OBJECTFILES = test.o huffman.o stack.o
 ANALYSIS_ENTRY = encode
 
 CC = gcc
+#CC = clang
 DEFS = -D_XOPEN_SOURCE=500 -D_DEFAULT_SOURCE 
 #DEFS += -DENDEBUG
 CFLAGS = -Wall -g -std=c99 -pedantic $(DEFS)
@@ -41,7 +42,7 @@ $(TARGET): $(OBJECTFILES)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -DHOST_COMPILE -c -o $@ $<
 
 doxy:
 	$(DOXYGEN) ../doc/Doxyfile

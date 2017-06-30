@@ -55,15 +55,19 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 {
     int i, smallest;
 
+#ifndef HOST_COMPILE
     __llvm_pcmarker(0);
+#endif
 
     /* Initialize 'smallest' with a valid node (value != -1) */
     i = 0;
     #pragma loopbound min 0 max 127
     /* ait: loop here max @nr_of_nodes; */
     while (array[i]->value==-1) {
-      /* ai: LABEL here = "findSmallest_while1"; */
+      /* ai: label here = "findSmallest_while1"; */
+#ifndef HOST_COMPILE
       __llvm_pcmarker(1);
+#endif
         i++;
     }
     smallest = i;
@@ -72,8 +76,10 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
         #pragma loopbound min 0 max 126
         /* ait: loop here max @nr_of_nodes-1; */
         while (array[i]->value == -1) {
-          /* ai: LABEL here = "findSmallest_while2"; */
+          /* ai: label here = "findSmallest_while2"; */
+#ifndef HOST_COMPILE
           __llvm_pcmarker(2);
+#endif
             i++;
         }
         smallest = i;
@@ -97,9 +103,9 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 /**
  * @brief Builds the Huffman tree and returns its address by reference
  *
- * @param node_pool       Data structure with enough space for Huffman tree (2n-1)
- * @param tree        The resulting Huffman tree
- * @param input_text  The text the Huffman tree will be created for
+ * @param pool_of_nodes   Data structure with enough space for Huffman tree (2n-1)
+ * @param input_text      The text the Huffman tree will be created for
+ * @return root node of the resulting Huffman tree
  */
 /* ai: instruction "buildHuffmanTree" is entered with @nr_of_chars = 128;  */
 /* ai: instruction "buildHuffmanTree" is entered with @strlen = 4095;  */
@@ -140,7 +146,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
           //assert (j < nr_of_nodes);
-            array[j] = &node_pool[j];
+            array[j] = &pool_of_nodes[j];
             array[j]->value = letter_frequencies[i];
             array[j]->letter = (char) i;
             array[j]->left = NULL;
@@ -156,7 +162,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
         smallOne = findSmallest(array, nr_of_nodes, -1);
         smallTwo = findSmallest(array, nr_of_nodes, smallOne);
         temp = array[smallOne];
-        array[smallOne] = &node_pool[j++];
+        array[smallOne] = &pool_of_nodes[j++];
         array[smallOne]->value  = temp->value + array[smallTwo]->value;
         array[smallOne]->letter = 0;
         array[smallOne]->left   = array[smallTwo];
@@ -164,7 +170,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
         array[smallTwo]->value  = -1; //to 'remove' node from forest
     }
 
-    *tree = array[smallOne];
+    return array[smallOne];
 }
 
 /**
@@ -185,7 +191,9 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
     struct stack_entry entries[NR_OF_CHARS-1];
     struct stack_entry *e;
 
+#ifndef HOST_COMPILE
      __llvm_pcmarker(3);
+#endif
 
     /* note: nr of inner nodes in a tree of n leaves: n-1
      * max size of stack: n
@@ -201,8 +209,10 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
         code = e->code;
         len = e->len;
         if ((node->left == NULL) && (node->right == NULL)) { // if node is a leaf
-            /* ai: LABEL here = "fillTable_if"; */
+            /* ai: label here = "fillTable_if"; */
+#ifndef HOST_COMPILE
             __llvm_pcmarker(4);
+#endif
             codeTable[(int)node->letter] = (struct code) {code, len};
         } else {
             stack_push(&s, &(struct stack_entry) {node->right, (code<<1)|1, len+1});
@@ -264,7 +274,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     //nsigned char *output = { 0 };
     unsigned char output[(7*4095)/8];
 
+#ifndef HOST_COMPILE
      __llvm_pcmarker(5);
+#endif
 
     #pragma loopbound min 0 max 4095
     /* ait: loop here max @strlen; */
@@ -298,7 +310,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
         while (length>0)
         {
           /* ai: label here = "compress_inner_while"; */
+#ifndef HOST_COMPILE
            __llvm_pcmarker(6);
+#endif
             compressedBits++;
             bit = (n & 0x01);
             n = n>>1;
@@ -308,7 +322,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
             if (bitsLeft==0)
             {
               /* ai: label here = "compress_inner_if"; */
+#ifndef HOST_COMPILE
                __llvm_pcmarker(7);
+#endif
                 compressedBytes++;
                 output[compressedBytes - 1] = x;
 
@@ -343,7 +359,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 struct bytestream encode(const char *input, Node **tree)
 {
     struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
-    Node array_of_nodes[NR_OF_CHARS];
+    Node pool_of_nodes[2*NR_OF_CHARS-1];
 
     #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
@@ -351,7 +367,7 @@ struct bytestream encode(const char *input, Node **tree)
         invCodeTable[i] = (struct code) {-1, 0};
     }
 
-    buildHuffmanTree(array_of_nodes, tree, input);
+    *tree = buildHuffmanTree(pool_of_nodes, input);
     fillTable(codeTable, *tree, NR_OF_CHARS);
     invertCodes(codeTable, invCodeTable);
 
