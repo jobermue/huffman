@@ -62,7 +62,7 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
     /* Initialize 'smallest' with a valid node (value != -1) */
     i = 0;
     #pragma loopbound min 0 max 127
-    /* ait: loop here max @nr_of_nodes; */
+    /* ai?: loop here max @nr_of_nodes; */
     while (array[i]->value==-1) {
       /* ai: label here = "findSmallest_while1"; */
 #ifndef HOST_COMPILE
@@ -74,7 +74,7 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
     if (i == differentFrom){
         i++;
         #pragma loopbound min 0 max 126
-        /* ait: loop here max @nr_of_nodes-1; */
+        /* ai?: loop here max @nr_of_nodes-1; */
         while (array[i]->value == -1) {
           /* ai: label here = "findSmallest_while2"; */
 #ifndef HOST_COMPILE
@@ -87,7 +87,7 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 
     /* Find smallest node (apart from differentFrom) */
     #pragma loopbound min 0 max 127
-    /* ait: loop here max @nr_of_nodes; */
+    /* ai?: loop here max @nr_of_nodes; */
     for (i=1; i < nr_of_nodes; i++){
         if (array[i]->value == -1)
             continue;
@@ -109,7 +109,7 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
  */
 /* ai: instruction "buildHuffmanTree" is entered with @nr_of_chars = 128;  */
 /* ai: instruction "buildHuffmanTree" is entered with @strlen = 4095;  */
-static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_text)
+static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
 {
     Node *temp;
     Node *array[127];
@@ -119,13 +119,13 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
 
     /* Get letter frequencies in input text */
     #pragma loopbound min 0 max 128
-    /* ait: loop here max @nr_of_chars; */
+    /* ai?: loop here max @nr_of_chars; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         letter_frequencies[i] = 0;
     }
     //assert(strlen(input_text) < 4096);
     #pragma loopbound min 0 max 4095
-    /* ait: loop here max @strlen ; */
+    /* ai?: loop here max @strlen ; */
     for (int i = 0; /*i < 4096 && */input_text[i] != 0; i++) {
         letter_frequencies[(unsigned char)input_text[i]]++;
     }
@@ -133,7 +133,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
     /* Initialize forest with single node trees (one per character) */
     int nr_of_nodes = 0;
     #pragma loopbound min 0 max 128
-    /* ait: loop here max @nr_of_chars; */
+    /* ai?: loop here max @nr_of_chars; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
             DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
@@ -142,7 +142,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
     }
     int j = 0;
     #pragma loopbound min 0 max 128
-    /* ait: loop here loops max @nr_of_chars; */
+    /* ai?: loop here loops max @nr_of_chars; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
           //assert (j < nr_of_nodes);
@@ -157,7 +157,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
 
     /* Combine subtrees into a single tree */
     #pragma loopbound min 0 max 126
-    /* ait: loop here loops max @nr_of_chars-2; */
+    /* ai?: loop here loops max @nr_of_chars-2; */
     for (subTrees = nr_of_nodes; subTrees>1; subTrees--) {
         smallOne = findSmallest(array, nr_of_nodes, -1);
         smallTwo = findSmallest(array, nr_of_nodes, smallOne);
@@ -235,7 +235,7 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
     int i, n, copy;
 
     #pragma loopbound min 0 max 128
-    /* ait: loop here max @nr_of_chars; */
+    /* ai?: loop here max @nr_of_chars; */
     for (i=0; i<NR_OF_CHARS; i++){
         n = codeTable[i].code;
         if (n != -1) {
@@ -243,7 +243,7 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
             /* max length of a code = max height of Huffman tree <= n */
             /* note: can be further bounded - see https://groups.google.com/forum/#!topic/comp.compression/m5pj1lDoeU8 */
             #pragma loopbound min 0 max 15
-            /* ait: loop here max @max_code_length; */
+            /* ai?: loop here max @max_code_length; */
             for (int j = 0; j<codeTable[i].len; j++) {
               /* max length of code only for at most 2 codes possible, others are shorter 
                * (or if all have equal length, max possible length is not reached) */
@@ -279,7 +279,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 #endif
 
     #pragma loopbound min 0 max 4095
-    /* ait: loop here max @strlen; */
+    /* ai?: loop here max @strlen; */
     for (i = 0, c = input[i]; c != 0; c = input[++i]) {
         compressedBits += codeTable[(unsigned char)c].len;
     }
@@ -298,7 +298,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 
     c = input[i];
     #pragma loopbound min 0 max 4095
-    /* ait: loop here max @strlen; */
+    /* ai?: loop here max @strlen; */
     while (c != 0)
     {
         originalBits++;
@@ -306,7 +306,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
         n = invCodeTable[(unsigned char)c].code;
  
         #pragma loopbound min 0 max 15
-        /* ait: loop here max 15; */
+        /* ai?: loop here max 15; */
         while (length>0)
         {
           /* ai: label here = "compress_inner_while"; */
