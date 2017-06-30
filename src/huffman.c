@@ -103,13 +103,13 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 /**
  * @brief Builds the Huffman tree and returns its address by reference
  *
- * @param node_pool       Data structure with enough space for Huffman tree (2n-1)
- * @param tree        The resulting Huffman tree
- * @param input_text  The text the Huffman tree will be created for
+ * @param pool_of_nodes   Data structure with enough space for Huffman tree (2n-1)
+ * @param input_text      The text the Huffman tree will be created for
+ * @return root node of the resulting Huffman tree
  */
 /* ai: instruction buildHuffmanTree is entered with @nr_of_chars = 128;  */
 /* ai: instruction buildHuffmanTree is entered with @strlen = 4095;  */
-static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_text)
+static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
 {
     Node *temp;
     Node *array[127];
@@ -146,7 +146,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
     for (int i = 0; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
           //assert (j < nr_of_nodes);
-            array[j] = &node_pool[j];
+            array[j] = &pool_of_nodes[j];
             array[j]->value = letter_frequencies[i];
             array[j]->letter = (char) i;
             array[j]->left = NULL;
@@ -162,7 +162,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
         smallOne = findSmallest(array, nr_of_nodes, -1);
         smallTwo = findSmallest(array, nr_of_nodes, smallOne);
         temp = array[smallOne];
-        array[smallOne] = &node_pool[j++];
+        array[smallOne] = &pool_of_nodes[j++];
         array[smallOne]->value  = temp->value + array[smallTwo]->value;
         array[smallOne]->letter = 0;
         array[smallOne]->left   = array[smallTwo];
@@ -170,7 +170,7 @@ static void buildHuffmanTree (Node *node_pool, Node **tree, const char *input_te
         array[smallTwo]->value  = -1; //to 'remove' node from forest
     }
 
-    *tree = array[smallOne];
+    return array[smallOne];
 }
 
 /**
@@ -359,7 +359,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
 struct bytestream encode(const char *input, Node **tree)
 {
     struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
-    Node array_of_nodes[2*NR_OF_CHARS-1];
+    Node pool_of_nodes[2*NR_OF_CHARS-1];
 
     #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
@@ -367,7 +367,7 @@ struct bytestream encode(const char *input, Node **tree)
         invCodeTable[i] = (struct code) {-1, 0};
     }
 
-    buildHuffmanTree(array_of_nodes, tree, input);
+    *tree = buildHuffmanTree(pool_of_nodes, input);
     fillTable(codeTable, *tree, NR_OF_CHARS);
     invertCodes(codeTable, invCodeTable);
 

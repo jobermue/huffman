@@ -27,7 +27,7 @@ static int fib(int n)
 
 static void run_test(const char *input)
 {
-    Node *tree;
+    Node *tree; //pointer to root node of tree
     struct bytestream compressed;
 
     DEBUG("input: %s\n\n", input);
