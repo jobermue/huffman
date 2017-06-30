@@ -12,6 +12,7 @@
 
 #include "stack.h"
 #include "huffman.h"
+#include "insertion_sort.h"
 
 #define NR_OF_ASCII_CHARS (128)
 #define NR_OF_CHARS (NR_OF_ASCII_CHARS)
@@ -154,6 +155,9 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
             j++;
         }
     }
+
+    /* Sort forest */
+    insertion_sort(array, nr_of_nodes);
 
     /* Combine subtrees into a single tree */
     #pragma loopbound min 0 max 126

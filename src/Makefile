@@ -9,8 +9,8 @@
 ###
 
 TARGET = test
-SRCS = test.c huffman.c stack.c
-OBJECTFILES = test.o huffman.o stack.o
+SRCS = test.c huffman.c stack.c insertion_sort.c
+OBJECTFILES = test.o huffman.o stack.o insertion_sort.o
 ANALYSIS_ENTRY = encode
 
 CC = gcc
