@@ -22,12 +22,12 @@ int stack_capacity(struct stack *s)
     return s->capacity;
 }
 
-void stack_push(struct stack *s, struct stack_entry *entry)
+void stack_push(struct stack *s, const struct stack_entry *entry)
 {
-    if (s->size == s->capacity) {
-      //fprintf(stderr, "Error: trying to push onto full stack\n");
-        return;
-    }
+    /* if (s->size == s->capacity) { */
+    /*   //fprintf(stderr, "Error: trying to push onto full stack\n"); */
+    /*     return; */
+    /* } */
 
     s->data[s->size] = *entry;
     s->size++;
@@ -36,10 +36,10 @@ void stack_push(struct stack *s, struct stack_entry *entry)
 
 struct stack_entry *stack_pop(struct stack *s)
 {
-    if (s->size == 0){
-      //fprintf(stderr, "Error: trying to pop from empty stack\n");
-        return NULL;
-    }
+    /* if (s->size == 0){ */
+    /*   //fprintf(stderr, "Error: trying to pop from empty stack\n"); */
+    /*     return NULL; */
+    /* } */
 
     s->size--;
     return &s->data[s->size];

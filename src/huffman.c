@@ -17,7 +17,8 @@
 
 #define NR_OF_ASCII_CHARS (128)
 #define NR_OF_CHARS (NR_OF_ASCII_CHARS)
-#define NR_OF_NODES (NR_OF_CHARS-1) // exclude '\0'
+#define NR_OF_NODES (NR_OF_CHARS) // includes '\0'
+#define MIN_VALID_CHAR (0)
 
 #ifdef ENDEBUG
 #define DEBUG(...) do { fprintf(stderr, __VA_ARGS__); } while(0)
@@ -60,11 +61,12 @@ static Node *get_min(queue_t *q1, queue_t *q2)
  * @brief Builds the Huffman tree and returns its address by reference
  *
  * @param pool_of_nodes   Data structure with enough space for Huffman tree (2n-1)
- * @param input_text      The text the Huffman tree will be created for
+ * @param input_text      The text the Huffman tree will be created for 
+ *                        (filled up with 0's to MAX_STRING_LENGTH)
  * @return root node of the resulting Huffman tree
  */
 /* ai: instruction "buildHuffmanTree" is entered with @nr_of_chars = 128;  */
-/* ai: instruction "buildHuffmanTree" is entered with @strlen = 4095;  */
+/* ai: instruction "buildHuffmanTree" is entered with @strlen = 4096;  */
 static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
 {
     Node *combined;
@@ -82,45 +84,45 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
         letter_frequencies[i] = 0;
     }
     //assert(strlen(input_text) < 4096);
-    #pragma loopbound min 0 max 4095
+    #pragma loopbound min 0 max 4096
     /* ai?: loop here max @strlen ; */
-    for (int i = 0; /*i < 4096 && */input_text[i] != 0; i++) {
+    for (int i = 0; i < MAX_STRING_LENGTH; i++) {
         letter_frequencies[(unsigned char)input_text[i]]++;
     }
 
     /* Initialize forest with single node trees (one per character) */
-    int nr_of_nodes = 0;
     #pragma loopbound min 0 max 128
     /* ai?: loop here max @nr_of_chars; */
-    for (int i = 0; i < NR_OF_CHARS; i++) {
+#ifdef ENDEBUG
+    for (int i = MIN_VALID_CHAR; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
             DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
-            nr_of_nodes++;
         }
     }
+#endif
+    int nr_of_nodes = NR_OF_NODES;
     int j = 0;
     #pragma loopbound min 0 max 128
     /* ai?: loop here loops max @nr_of_chars; */
-    for (int i = 0; i < NR_OF_CHARS; i++) {
-        if (letter_frequencies[i] > 0) {
-          //assert (j < nr_of_nodes);
-            array[j] = &pool_of_nodes[j];
-            array[j]->value = letter_frequencies[i];
-            array[j]->letter = (char) i;
-            array[j]->left = NULL;
-            array[j]->right = NULL;
-            j++;
-        }
+    for (int i = MIN_VALID_CHAR; i < NR_OF_CHARS; i++) {
+        //assert (j < nr_of_nodes);
+        array[j] = &pool_of_nodes[j];
+        array[j]->value = letter_frequencies[i];
+        array[j]->letter = (char) i;
+        array[j]->left = NULL;
+        array[j]->right = NULL;
+        j++;
     }
 
     /* Sort forest */
     insertion_sort(array, nr_of_nodes);
+    //TODO: use merge sort instead
 
     /* Combine subtrees into a single tree */
     queue_init(&q1, array, NR_OF_NODES, 0, nr_of_nodes-1);
     queue_init(&q2, array_q2, NR_OF_NODES-1, 0, -1);
-    #pragma loopbound min 0 max 126
-    /* ai?: loop here loops max @nr_of_chars-2; */
+    #pragma loopbound min 0 max 127
+    /* ai?: loop here loops max @nr_of_chars-1; */
     for (subTrees = nr_of_nodes; subTrees>1; subTrees--) {
         smallOne = get_min(&q1, &q2);
         smallTwo = get_min(&q1, &q2);
@@ -142,30 +144,30 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
  * @param tree          The Huffman tree used to generate the code table
  * @param nr_of_leaves  The maximum number of leaves in the Huffman tree      
  */
-/* ai?: instruction fillTable is entered with @nr_of_leaves <= NR_OF_CHARS-1 (exclude '\0');  */
-/* ai: instruction "fillTable" is entered with @nr_of_leaves = 127;  */
+/* ai?: instruction fillTable is entered with @nr_of_leaves <= NR_OF_CHARS (include '\0');  */
+/* ai: instruction "fillTable" is entered with @nr_of_leaves = 128;  */
 static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_of_leaves)
 {
     int code = 0;
     int len = 0;
-    Node *node;
+    const Node *node;
     struct stack s;
-    struct stack_entry entries[NR_OF_CHARS-1];
+    struct stack_entry entries[NR_OF_NODES];
     struct stack_entry *e;
 
 #ifndef HOST_COMPILE
-     __llvm_pcmarker(3);
+    __llvm_pcmarker(3);
 #endif
 
     /* note: nr of inner nodes in a tree of n leaves: n-1
      * max size of stack: n
      * nr of total nodes (inner nodes + leaves) = 2n-1
      */
-     stack_init(&s, entries, nr_of_leaves);
+    stack_init(&s, entries, nr_of_leaves);
     stack_push(&s, &(struct stack_entry) {tree,0,0});
     #pragma loopbound min 0 max 255
     /* ai: loop here max 2*@nr_of_leaves-1; */
-    while (stack_size(&s) > 0) {
+    for (int i = 0; i < 2*NR_OF_NODES-1; i++) {
         e = stack_pop(&s);
         node = e->node;
         code = e->code;
@@ -200,22 +202,20 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
     /* ai?: loop here max @nr_of_chars; */
     for (i=0; i<NR_OF_CHARS; i++){
         n = codeTable[i].code;
-        if (n != -1) {
-            copy = 0;
-            /* max length of a code = max height of Huffman tree <= n */
-            /* note: can be further bounded - see https://groups.google.com/forum/#!topic/comp.compression/m5pj1lDoeU8 */
-            #pragma loopbound min 0 max 15
-            /* ai?: loop here max @max_code_length; */
-            for (int j = 0; j<codeTable[i].len; j++) {
-              /* max length of code only for at most 2 codes possible, others are shorter 
-               * (or if all have equal length, max possible length is not reached) */
-              /* flow is (nr_of_chars+2)*(nr_of_chars-1)/2  - TODO: update this */
-              /* ai: label here = "invertCodes_inner"; */
-                copy = (copy<<1) | (n & 0x01);
-                n = n>>1;
-            }
-            invCodeTable[i] = (struct code) {.code=copy, .len = codeTable[i].len};
+        copy = 0;
+        /* max length of a code = max height of Huffman tree <= n */
+        /* can be further bounded - see https://groups.google.com/forum/#!topic/comp.compression/m5pj1lDoeU8 */
+        #pragma loopbound min 0 max 15
+        /* ai?: loop here max @max_code_length; */
+        for (int j = 0; j<codeTable[i].len; j++) {
+            /* max length of code only for at most 2 codes possible, others are shorter 
+             * (or if all have equal length, max possible length is not reached) */
+            /* flow is (nr_of_chars+2)*(nr_of_chars-1)/2  - TODO: update this */
+            /* ai: label here = "invertCodes_inner"; */
+            copy = (copy<<1) | (n & 0x01);
+            n = n>>1;
         }
+        invCodeTable[i] = (struct code) {.code=copy, .len = codeTable[i].len};
     }
 }
 
@@ -226,63 +226,42 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
  * @param input Text to be compressed
  * @param codeTable inverted Huffman code table
 */
-/* ai: instruction "compress" is entered with @strlen = 4095;  */
+/* ai: instruction "compress" is entered with @strlen = 4096;  */
 static struct bytestream compress(const char *input, struct code codeTable[], struct code invCodeTable[])
 {
     char bit, c, x = 0;
     int n,length,bitsLeft = 8;
     int originalBits = 0, compressedBits = 0;
-    int i = 0, compressedBytes = 0;
-    //nsigned char *output = { 0 };
-    unsigned char output[(7*4095)/8];
+    int compressedBytes = 0;
+    unsigned char output[(7*MAX_STRING_LENGTH)/8];
 
 #ifndef HOST_COMPILE
-     __llvm_pcmarker(5);
+    __llvm_pcmarker(5);
 #endif
 
-    #pragma loopbound min 0 max 4095
-    /* ai?: loop here max @strlen; */
-    for (i = 0, c = input[i]; c != 0; c = input[++i]) {
-        compressedBits += codeTable[(unsigned char)c].len;
-    }
-    compressedBytes = (compressedBits + 8 - 1)/8; // ceil(compressedBits/8)
-    compressedBytes += 1;     // increase memory by one byte (for null termination)
-    //int allocatedBytes = compressedBytes;
-
-    // allocate memory
-    //output = malloc(sizeof(char) * compressedBytes);
-
-    i = 0;
-    bitsLeft = 8;
     originalBits = 0; //TODO: rename to originalBytes, as it actually counts bytes
-    compressedBytes = 0;
-    compressedBits = 0;
 
-    c = input[i];
-    #pragma loopbound min 0 max 4095
+    #pragma loopbound min 0 max 4096
     /* ai?: loop here max @strlen; */
-    while (c != 0)
-    {
+    for (int i = 0; i < MAX_STRING_LENGTH; i++) {
+        c = input[i];
         originalBits++;
         length = codeTable[(unsigned char)c].len;
         n = invCodeTable[(unsigned char)c].code;
  
         #pragma loopbound min 0 max 15
         /* ai?: loop here max 15; */
-        while (length>0)
-        {
-          /* ai: label here = "compress_inner_while"; */
+        for (int j=0; j < length; j++) {
+            /* ai: label here = "compress_inner_while"; */
 #ifndef HOST_COMPILE
-           __llvm_pcmarker(6);
+            __llvm_pcmarker(6);
 #endif
             compressedBits++;
             bit = (n & 0x01);
             n = n>>1;
             x = x | bit;
             bitsLeft--;
-            length--;
-            if (bitsLeft==0)
-            {
+            if (bitsLeft==0) {
               /* ai: label here = "compress_inner_if"; */
 #ifndef HOST_COMPILE
                __llvm_pcmarker(7);
@@ -295,8 +274,6 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
             }
             x = x << 1;
         }
-        i++;
-        c = input[i];
     }
 
     if (bitsLeft!=8)
@@ -305,8 +282,6 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
         compressedBytes++;
         output[compressedBytes - 1] = x;
     }
-    output[compressedBytes] = 0; // null terminate string
-
     //assert(allocatedBytes == compressedBytes+1);
 
     /*print details of compression on the screen*/

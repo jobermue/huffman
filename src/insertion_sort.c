@@ -20,7 +20,7 @@
  * @param arr  array of integers
  * @param size number of elements in the array (user register upper bound: @size)
  */
-/* ai: instruction insertion_sort is entered with @size = 127;  */
+/* ai: instruction insertion_sort is entered with @size = 128;  */
 __attribute__((noinline))
 void insertion_sort(Node **arr, int size /* passed in r4 */)
 {
@@ -48,8 +48,9 @@ void insertion_sort(Node **arr, int size /* passed in r4 */)
           /* ai?: flow (here) <= (@size * (@size-1) / 2) ("insertion_sort"); */
           /* Unfortunately, aiT is not capable of interpreting parametric flow facts */
           /* size | flow */
-          /* 127   | 8001 */
-          /* ai: flow (here) <= 8001 ("insertion_sort"); */
+          /* 127  | 8001 */
+          /* 128  | 8128 */
+          /* ai: flow (here) <= 8128 ("insertion_sort"); */
 #ifndef HOST_COMPILE
           __llvm_pcmarker(1);
 #endif

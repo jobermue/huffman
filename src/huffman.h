@@ -5,6 +5,8 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
+#define MAX_STRING_LENGTH (4096)  //max length of a string (including null termination)
+
 /* Node of the huffman tree */
 struct node{
     int value;

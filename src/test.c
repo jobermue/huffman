@@ -33,7 +33,11 @@ static int run_test(const char *input, const char *test_name)
 {
     int ret;
     Node *tree; //pointer to root node of tree
+    char test_input[MAX_STRING_LENGTH+1];
     struct bytestream compressed;
+
+    memset(test_input, 0, MAX_STRING_LENGTH + 1);
+    strncpy(test_input, input, MAX_STRING_LENGTH);
 
     DEBUG("input: %s\n\n", input);
     fflush(stdout);
@@ -44,7 +48,7 @@ static int run_test(const char *input, const char *test_name)
     clear_caches();
 #endif
     MEASUREMENT_START(cyc);
-    compressed = encode(input, &tree);
+    compressed = encode(test_input, &tree);
     // stop measurement
     MEASUREMENT_STOP(cyc);
     MEASUREMENT_DUMP(cyc);

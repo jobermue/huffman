@@ -8,7 +8,7 @@
 #include "huffman.h"
 
 struct stack_entry {
-    Node *node;
+    const Node *node;
     int code;
     int len;
 };
@@ -25,7 +25,7 @@ int stack_size(struct stack *s);
 
 int stack_capacity(struct stack *s);
 
-void stack_push(struct stack *s, struct stack_entry *entry);
+void stack_push(struct stack *s, const struct stack_entry *entry);
 
 struct stack_entry *stack_pop(struct stack *s);
  

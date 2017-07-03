@@ -35,17 +35,17 @@ int queue_capacity(queue_t *q)
 
 void queue_enqueue(queue_t *q, Node *node)
 {
-    if (queue_full(q)) {
-        return;
-    }
+    /* if (queue_full(q)) { */
+    /*     return; */
+    /* } */
     q->data[++q->last] = node;
 }
 
 Node *queue_dequeue(queue_t *q)
 {
-    if (queue_empty(q)) {
-        return NULL;
-    }
+    /* if (queue_empty(q)) { */
+    /*     return NULL; */
+    /* } */
     return q->data[q->first++];
 }
 
