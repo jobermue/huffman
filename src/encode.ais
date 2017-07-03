@@ -17,12 +17,12 @@ flow ("compress_inner_if") <= 3584 ("compress");
 loop "buildHuffmanTree" + 1 loops MAX @nr_of_chars; #128
 loop "buildHuffmanTree" + 2 loops MAX @strlen; #4096
 loop "buildHuffmanTree" + 3 loops MAX @nr_of_chars;
-loop "buildHuffmanTree" + 4 loops MAX @nr_of_chars;
-loop "buildHuffmanTree" + 5 loops MAX @nr_of_chars-1;
+loop "buildHuffmanTree" + 4 loops MAX @nr_of_chars-1;
+
+loop "fillTable" + 1 loops MAX 2*@nr_of_leaves-1;
 
 loop "invertCodes" + 1 loops MAX @nr_of_chars;
 loop "invertCodes" + 2 loops MAX @max_code_length;
 
 loop "compress" + 1 loops MAX @strlen;
-loop "compress" + 2 loops MAX @strlen;
-loop "compress" + 3 loops MAX 15;
+loop "compress" + 2 loops MAX 15;

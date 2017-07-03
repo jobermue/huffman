@@ -91,9 +91,9 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
     }
 
     /* Initialize forest with single node trees (one per character) */
+#ifdef ENDEBUG
     #pragma loopbound min 0 max 128
     /* ai?: loop here max @nr_of_chars; */
-#ifdef ENDEBUG
     for (int i = MIN_VALID_CHAR; i < NR_OF_CHARS; i++) {
         if (letter_frequencies[i] > 0) {
             DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
