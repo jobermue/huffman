@@ -73,7 +73,7 @@ void merge_helper(Node **input, int left, int right, Node **scratch)
 __attribute__((noinline))
 void merge_sort(Node **arr, int size)
 {
-    assert(size <= 127);
+  //assert(size <= 127);
     Node *scratch[127];
 
     merge_helper(arr, 0, size, scratch);
