@@ -79,3 +79,52 @@ void merge_sort(Node **arr, int size)
     merge_helper(arr, 0, size, scratch);
 }
 
+__attribute__((noinline))
+void merge_sort_nrecursive(Node **a, int num)
+{
+    assert(num <= 127);
+    Node *b[127];
+
+    int rght, wid, rend;
+    int i, j, m, t;
+
+    for(int k=1; k < num; k *= 2)
+    {
+        for(int left=0; left+k < num; left += 2*k)
+        {
+            rght = left + k;
+            rend = rght + k;
+            if(rend > num) rend = num;
+            while(i < rght && j < rend)
+            {
+                if(a[i] <= a[j])
+                {
+                    b[m] = a[i];
+                    i++;
+                }
+                else
+                {
+                    b[m] = a[j];
+                    j++;
+                }
+                m++;
+            }
+            while(i < rght)
+            {
+                b[m] = a[i];
+                i++;
+                m++;
+            }
+            while(i < rend)
+            {
+                b[m] = a[j];
+                m++;
+            }
+            for(m = left; m < rend; m++)
+            {
+                a[m] = b[m];
+            }
+        }
+    }
+}
+
