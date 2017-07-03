@@ -57,7 +57,7 @@ $(TARGET).elf $(TARGET).elf.pml: $(SRCS)
 	  -DUSE_SPM \
 	  -DPATMOS_ENABLE_MEASURE \
 	  -mserialize=$(TARGET).elf.pml $^ $(LIBS)
-	  #-mpatmos-singlepath=binsearch
+	  #-mpatmos-singlepath=encode
 # $(TARGET).elf $(TARGET).elf.pml: $(SRCS)
 # 	patmos-clang $(CFLAGS) -o $(TARGET).elf $(shell $(TOOL_CONFIG)) \
 # 	    -Xllc -mpreemit-bitcode=$(TARGET).elf.bc \
@@ -94,10 +94,6 @@ patmos.ais:
 
 $(TARGET).dis: $(TARGET).elf
 	patmos-llvm-objdump -d -t -fpatmos-print-bytes=call $< > $@
-
-$(TARGET).sim: TOOL = pasim
-$(TARGET).sim: $(TARGET).elf
-	pasim -V $(shell $(TOOL_CONFIG)) $< 2> $@
 
 $(TARGET).trace: TOOL = pasim
 $(TARGET).trace: $(TARGET).elf

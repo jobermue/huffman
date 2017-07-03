@@ -1,0 +1,78 @@
+sent 326872 raw bytes compressed to 148587 bytes (45%)
+MEASUREMENT(test.c:50) cyc = 5275410
+-------------------------------------
+    Test hello_world ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 5291948
+-------------------------------------
+    Test 0 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 5291129
+-------------------------------------
+    Test 1 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 5295031
+-------------------------------------
+    Test 2 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 5925232
+-------------------------------------
+    Test 3 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 5315962
+-------------------------------------
+    Test 4 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 5480716
+-------------------------------------
+    Test 5 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 6316478
+-------------------------------------
+    Test 6 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 6357123
+-------------------------------------
+    Test 7 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 6501672
+-------------------------------------
+    Test 8 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 6763980
+-------------------------------------
+    Test uniform distribution failed!!!!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 5801210
+-------------------------------------
+    Test fibonacci_16 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 6110405
+-------------------------------------
+    Test fibonacci_17 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 6703162
+-------------------------------------
+    Test fibonacci_17+ones failed!!!!
+-------------------------------------
+
+-------------------------------------
+  Some tests failed!
+-------------------------------------
+
+EXIT 255
+make: *** [download] Error 255
+

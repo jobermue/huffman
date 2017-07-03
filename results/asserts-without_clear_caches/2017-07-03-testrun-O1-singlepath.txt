@@ -1,0 +1,7 @@
+sent 146532 raw bytes compressed to 74060 bytes (50%)
+MEASUREMENT(test.c:42) cyc = 2100346
+assertion "!strcmp(input, decompressed)" failed: file "test.c", line 54, function: run_test
+
+EXIT 1
+make: *** [download] Error 1
+

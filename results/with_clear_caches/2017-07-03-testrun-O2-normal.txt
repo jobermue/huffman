@@ -1,0 +1,77 @@
+sent 178924 raw bytes compressed to 96982 bytes (54%)
+MEASUREMENT(test.c:50) cyc = 19120
+-------------------------------------
+    Test hello_world ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 30773
+-------------------------------------
+    Test 0 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 29224
+-------------------------------------
+    Test 1 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 32331
+-------------------------------------
+    Test 2 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 404055
+-------------------------------------
+    Test 3 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 45312
+-------------------------------------
+    Test 4 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 144957
+-------------------------------------
+    Test 5 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 634084
+-------------------------------------
+    Test 6 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 653426
+-------------------------------------
+    Test 7 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 763157
+-------------------------------------
+    Test 8 failed!!!!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 968402
+-------------------------------------
+    Test uniform distribution failed!!!!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 340116
+-------------------------------------
+    Test fibonacci_16 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 529624
+-------------------------------------
+    Test fibonacci_17 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:50) cyc = 940063
+-------------------------------------
+    Test fibonacci_17+ones failed!!!!
+-------------------------------------
+
+-------------------------------------
+  Some tests failed!
+-------------------------------------
+
+EXIT 255
+make: *** [download] Error 255

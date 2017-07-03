@@ -1,0 +1,51 @@
+sent 157023 raw bytes compressed to 85127 bytes (54%)
+MEASUREMENT(test.c:42) cyc = 19184
+--------------------------------------------
+    Test 'hello_world' ran successfully!
+--------------------------------------------
+MEASUREMENT(test.c:42) cyc = 29957
+-------------------------------------
+    Test 0 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:42) cyc = 29096
+-------------------------------------
+    Test 1 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:42) cyc = 32491
+-------------------------------------
+    Test 2 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:42) cyc = 404175
+-------------------------------------
+    Test 3 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:42) cyc = 45312
+-------------------------------------
+    Test 4 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:42) cyc = 144549
+-------------------------------------
+    Test 5 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:42) cyc = 633996
+-------------------------------------
+    Test 6 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:42) cyc = 653666
+-------------------------------------
+    Test 7 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:42) cyc = 763829
+assertion "!strcmp(input, decompressed)" failed: file "test.c", line 54, function: run_test
+
+EXIT 1
+make: *** [download] Error 1
+

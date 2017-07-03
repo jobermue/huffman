@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef HOST_COMPILE
+#include <machine/patmos.h>
+#endif
+
 #include "huffman.h"
 #include "measure.h"
 #include "testdata.h"
@@ -25,8 +29,9 @@ static int fib(int n)
     else return fib(n-2)+fib(n-1);
 }
 
-static void run_test(const char *input)
+static int run_test(const char *input, const char *test_name)
 {
+    int ret;
     Node *tree; //pointer to root node of tree
     struct bytestream compressed;
 
@@ -35,6 +40,9 @@ static void run_test(const char *input)
     fflush(stderr);
 
     // start measurement
+#ifndef HOST_COMPILE
+    clear_caches();
+#endif
     MEASUREMENT_START(cyc);
     compressed = encode(input, &tree);
     // stop measurement
@@ -51,13 +59,23 @@ static void run_test(const char *input)
     DEBUG("\n");
     DEBUG("original text: %s\n", input);
     DEBUG("decompressed:  %s\n", decompressed);
-    assert(!strcmp(input, decompressed));
-    
+    //assert(!strcmp(input, decompressed));
+    fprintf(stderr, "-------------------------------------\n");
+    if (!strcmp(input, decompressed)) {
+        fprintf(stderr, "    Test %s ran successfully!\n", test_name);
+        ret = 1;
+    } else {
+        fprintf(stderr, "    Test %s failed!!!!\n", test_name);
+        ret = 0;
+    }
+    fprintf(stderr, "-------------------------------------\n\n");
     //free(compressed.stream);
     //free(decompressed);
 
     fflush(stderr);
     fflush(stdout);
+
+    return ret;
 }
 
 
@@ -66,20 +84,15 @@ int main()
     char input_hello[] = "Hello World!";
     char *input;
     int input_size, idx;
+    int ret = 0;
 
-    run_test(input_hello);
-    fprintf(stderr, "--------------------------------------------\n");
-    fprintf(stderr, "    Test 'hello_world' ran successfully!\n");
-    fprintf(stderr, "--------------------------------------------\n");
-    fflush(stdout);
+    run_test(input_hello, "hello_world");
 
     for (int i = 0; i < TESTDATA_LEN; i++) {
         // fprintf(stderr, "strlen(test_data[i]): %li\n", strlen(test_data[i]));
-        run_test(test_data[i]);
-        fprintf(stderr, "-------------------------------------\n");
-        fprintf(stderr, "    Test %i ran successfully!\n", i);
-        fprintf(stderr, "-------------------------------------\n\n");
-        fflush(stdout);
+      char str[4];
+      snprintf(str, 4, "%d", i);
+      if (!run_test(test_data[i], str)) ret = -1;
     }
 
     /* limit input to ASCII characters (otherwise strcmp fails) */
@@ -89,11 +102,8 @@ int main()
         input[i] = i % (128-1) + 1;
     }
     input[input_size] = '\0';
-    run_test(input);
+    if (!run_test(input, "uniform distribution")) ret = -1;
     free(input);
-    fprintf(stderr, "-----------------------------------------------------\n");
-    fprintf(stderr, "    Test 'uniform distribution' ran successfully!\n");
-    fprintf(stderr, "-----------------------------------------------------\n");
 
     /* limit input to printable characters */
     input_size = 2583; //actual text size
@@ -106,12 +116,8 @@ int main()
         }
     }
     input[input_size] = '\0';
-    run_test(input);
+    if (!run_test(input, "fibonacci_16")) ret = -1;
     free(input);
-    fprintf(stderr, "-----------------------------------------------------\n");
-    fprintf(stderr, "    Test 'fibonacci_16' ran successfully!\n");
-    fprintf(stderr, "-----------------------------------------------------\n");
-
 
     /* limit input to printable characters */
     input_size = 4095; //actual text size
@@ -128,11 +134,8 @@ int main()
        idx++;
     }
     input[input_size] = '\0';
-    run_test(input);
+    if (!run_test(input, "fibonacci_17")) ret = -1;
     free(input);
-    fprintf(stderr, "-----------------------------------------------------\n");
-    fprintf(stderr, "    Test 'fibonacci_17' ran successfully!\n");
-    fprintf(stderr, "-----------------------------------------------------\n");
 
     /* limit input to ASCII characters */
     input_size = 4095; //actual text size
@@ -154,14 +157,15 @@ int main()
     }
     assert(idx == 4095);
     input[input_size] = '\0';
-    run_test(input);
+    if (!run_test(input, "fibonacci_17+ones")) ret = -1;
     free(input);
-    fprintf(stderr, "-----------------------------------------------------\n");
-    fprintf(stderr, "    Test 'fibonacci_17+1s' ran successfully!\n");
-    fprintf(stderr, "-----------------------------------------------------\n");
 
     fprintf(stderr, "-------------------------------------\n");
-    fprintf(stderr, "  All tests ran successfully!\n");
+    if (ret == 0) {
+      fprintf(stderr, "  All tests ran successfully!\n");
+    } else {
+      fprintf(stderr, "  Some tests failed!\n");
+    }
     fprintf(stderr, "-------------------------------------\n");
-    return 0;
+    return ret;
 }
