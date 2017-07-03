@@ -11,6 +11,7 @@
 #include <limits.h>
 
 #include "stack.h"
+#include "queue.h"
 #include "huffman.h"
 #include "insertion_sort.h"
 
@@ -43,63 +44,17 @@ static void print_code(const struct code *code)
 }
 #endif
 
-/**
- * @brief Finds and returns the smallest sub-tree in the forest that is different from differentFrom
- *
- * @param array          Array of subtrees
- * @param nr_of_nodes    Max number of nodes in forest
- * @param differentFrom  Index of a subtree in the array
- */
-/* ai?: instruction findSmallest is entered with @nr_of_nodes <= NR_OF_NODES;  */
-/* ai: instruction "findSmallest" is entered with @nr_of_nodes = 127;  */
-static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
+static Node *get_min(queue_t *q1, queue_t *q2)
 {
-    int i, smallest;
+    if (queue_empty(q2)) return queue_dequeue(q1);
 
-#ifndef HOST_COMPILE
-    __llvm_pcmarker(0);
-#endif
-
-    /* Initialize 'smallest' with a valid node (value != -1) */
-    i = 0;
-    #pragma loopbound min 0 max 127
-    /* ai?: loop here max @nr_of_nodes; */
-    while (array[i]->value==-1) {
-      /* ai: label here = "findSmallest_while1"; */
-#ifndef HOST_COMPILE
-      __llvm_pcmarker(1);
-#endif
-        i++;
+    if (queue_empty(q1) || queue_peek(q2) < queue_peek(q1)) {
+        return queue_dequeue(q2);
+    } else {
+        return queue_dequeue(q1);
     }
-    smallest = i;
-    if (i == differentFrom){
-        i++;
-        #pragma loopbound min 0 max 126
-        /* ai?: loop here max @nr_of_nodes-1; */
-        while (array[i]->value == -1) {
-          /* ai: label here = "findSmallest_while2"; */
-#ifndef HOST_COMPILE
-          __llvm_pcmarker(2);
-#endif
-            i++;
-        }
-        smallest = i;
-    }
-
-    /* Find smallest node (apart from differentFrom) */
-    #pragma loopbound min 0 max 127
-    /* ai?: loop here max @nr_of_nodes; */
-    for (i=1; i < nr_of_nodes; i++){
-        if (array[i]->value == -1)
-            continue;
-        if (i == differentFrom)
-            continue;
-        if (array[i]->value < array[smallest]->value)
-            smallest = i;
-    }
-
-    return smallest;
 }
+
 
 /**
  * @brief Builds the Huffman tree and returns its address by reference
@@ -112,10 +67,12 @@ static int findSmallest (Node *array[], int nr_of_nodes,  int differentFrom)
 /* ai: instruction "buildHuffmanTree" is entered with @strlen = 4095;  */
 static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
 {
-    Node *temp;
-    Node *array[127];
+    Node *combined;
+    Node *array[NR_OF_NODES];
+    Node *array_q2[NR_OF_NODES-1];
+    queue_t q1, q2;
     int subTrees;
-    int smallOne,smallTwo;
+    Node *smallOne, *smallTwo;
     int letter_frequencies[NR_OF_CHARS];
 
     /* Get letter frequencies in input text */
@@ -160,21 +117,22 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
     insertion_sort(array, nr_of_nodes);
 
     /* Combine subtrees into a single tree */
+    queue_init(&q1, array, NR_OF_NODES, 0, nr_of_nodes-1);
+    queue_init(&q2, array_q2, NR_OF_NODES-1, 0, -1);
     #pragma loopbound min 0 max 126
     /* ai?: loop here loops max @nr_of_chars-2; */
     for (subTrees = nr_of_nodes; subTrees>1; subTrees--) {
-        smallOne = findSmallest(array, nr_of_nodes, -1);
-        smallTwo = findSmallest(array, nr_of_nodes, smallOne);
-        temp = array[smallOne];
-        array[smallOne] = &pool_of_nodes[j++];
-        array[smallOne]->value  = temp->value + array[smallTwo]->value;
-        array[smallOne]->letter = 0;
-        array[smallOne]->left   = array[smallTwo];
-        array[smallOne]->right  = temp;
-        array[smallTwo]->value  = -1; //to 'remove' node from forest
+        smallOne = get_min(&q1, &q2);
+        smallTwo = get_min(&q1, &q2);
+        combined = &pool_of_nodes[j++];
+        combined->value  = smallOne->value + smallTwo->value;
+        combined->letter = 0;
+        combined->left   = smallTwo;
+        combined->right  = smallOne;
+        queue_enqueue(&q2, combined);
     }
 
-    return array[smallOne];
+    return queue_dequeue(&q2);
 }
 
 /**
@@ -289,7 +247,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     }
     compressedBytes = (compressedBits + 8 - 1)/8; // ceil(compressedBits/8)
     compressedBytes += 1;     // increase memory by one byte (for null termination)
-    int allocatedBytes = compressedBytes;
+    //int allocatedBytes = compressedBytes;
 
     // allocate memory
     //output = malloc(sizeof(char) * compressedBytes);
