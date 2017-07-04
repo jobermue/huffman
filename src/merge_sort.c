@@ -69,12 +69,12 @@ void merge_helper(Node **input, int left, int right, Node **scratch)
  * @param input  array of integers
  * @param size   number of elements in the array (user register upper bound: @size)
  */
-/* ai: instruction merge_sort is entered with @size = 127;  */
+/* ai: instruction merge_sort is entered with @size = 128;  */
 __attribute__((noinline))
 void merge_sort(Node **arr, int size)
 {
-    assert(size <= 127);
-    Node *scratch[127];
+    assert(size <= NR_OF_CHARS);
+    Node *scratch[NR_OF_CHARS];
 
     merge_helper(arr, 0, size, scratch);
 }
@@ -86,15 +86,15 @@ void merge_sort(Node **arr, int size)
  * @param input  array of integers
  * @param size   number of elements in the array (user register upper bound: @size)
  */
-/* ai: instruction merge_sort_nrecursive is entered with @size = 127;  */
+/* ai: instruction merge_sort_nrecursive is entered with @size = 128;  */
 __attribute__((noinline))
 void merge_sort_nrecursive(Node **arr, int size)
 {
-    assert(size <= 127);
-    Node *scratch[127];
+    assert(size <= NR_OF_CHARS);
+    Node *scratch[NR_OF_CHARS];
 
-    int rght, wid, rend;
-    int i=0, j=0, m=0, t=0;
+    int rght, rend;
+    int i=0, j=0, m=0;
 
     #pragma loopbound min 1 max 7
     for(int k=1; k < size; k *= 2)
@@ -112,6 +112,11 @@ void merge_sort_nrecursive(Node **arr, int size)
             {
                 rend = size;
             } 
+
+            m = left;
+            i = left;
+            j = rght;
+
             while(i < rght && j < rend)
             {
 #ifndef HOST_COMPILE
