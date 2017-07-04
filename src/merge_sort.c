@@ -110,6 +110,7 @@ void merge_sort_nrecursive(Node **arr, int size)
             } 
             while(i < rght && j < rend)
             {
+                /* ai: LABEL here = "ms_loop_3"; */
                 if(arr[i] <= arr[j])
                 {
                     scratch[m] = arr[i];
@@ -124,18 +125,22 @@ void merge_sort_nrecursive(Node **arr, int size)
             }
             while(i < rght)
             {
+                /* ai: LABEL here = "ms_loop_4"; */
                 scratch[m] = arr[i];
                 i++;
                 m++;
             }
             while(j < rend)
             {
+                /* ai: LABEL here = "ms_loop_5"; */
                 scratch[m] = arr[j];
                 j++;
                 m++;
             }
+
             for(m = left; m < rend; m++)
             {
+                /* ai: LABEL here = "ms_loop_6"; */
                 arr[m] = scratch[m];
             }
         }
