@@ -100,12 +100,11 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
         }
     }
 #endif
-    int nr_of_nodes = NR_OF_NODES;
     int j = 0;
     #pragma loopbound min 0 max 128
     /* ai?: loop here loops max @nr_of_chars; */
     for (int i = MIN_VALID_CHAR; i < NR_OF_CHARS; i++) {
-        //assert (j < nr_of_nodes);
+        //assert (j < NR_OF_NODES);
         array[j] = &pool_of_nodes[j];
         array[j]->value = letter_frequencies[i];
         array[j]->letter = (char) i;
@@ -115,15 +114,15 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
     }
 
     /* Sort forest */
-    insertion_sort(array, nr_of_nodes);
+    insertion_sort(array, NR_OF_NODES);
     //TODO: use merge sort instead
 
     /* Combine subtrees into a single tree */
-    queue_init(&q1, array, NR_OF_NODES, 0, nr_of_nodes-1);
+    queue_init(&q1, array, NR_OF_NODES, 0, NR_OF_NODES-1);
     queue_init(&q2, array_q2, NR_OF_NODES-1, 0, -1);
     #pragma loopbound min 0 max 127
     /* ai?: loop here loops max @nr_of_chars-1; */
-    for (subTrees = nr_of_nodes; subTrees>1; subTrees--) {
+    for (subTrees = NR_OF_NODES; subTrees>1; subTrees--) {
         smallOne = get_min(&q1, &q2);
         smallTwo = get_min(&q1, &q2);
         combined = &pool_of_nodes[j++];
