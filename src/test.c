@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,6 +11,8 @@
 #include "huffman.h"
 #include "measure.h"
 #include "testdata.h"
+
+#include "stack.h"
 
 static cycles_t cyc;
 
@@ -90,6 +93,9 @@ int main()
     char *input;
     int input_size, idx;
     int ret = 0;
+
+    printf("sizeof(struct node): %lu\n\n", sizeof(struct stack));
+    fflush(stdout);
 
     run_test(input_hello, "hello_world");
 

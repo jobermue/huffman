@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -27,7 +28,7 @@
  */
 static void print_code(const struct code *code)
 {
-    int n = code->code;
+    codeword_t n = code->codeword;
     for (int j = 0; j<code->len; j++) {
         if (n & 1)
             DEBUG("1");
@@ -65,12 +66,12 @@ static Node *get_min(queue_t *q1, queue_t *q2)
 static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
 {
     Node *combined;
-    Node *array[NR_OF_NODES];
+    Node *array[NR_OF_NODES]; //put into SPM
     Node *array_q2[NR_OF_NODES-1];
-    queue_t q1, q2;
+    queue_t q1, q2; //put into SPM
     int subTrees;
     Node *smallOne, *smallTwo;
-    int letter_frequencies[NR_OF_CHARS];
+    uint16_t letter_frequencies[NR_OF_CHARS]; //put into SPM
 
     /* Get letter frequencies in input text */
     #pragma loopbound min 0 max 128
@@ -107,6 +108,7 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
         array[j]->right = NULL;
         j++;
     }
+    //TODO: remove letter_frequencies from SPM
 
     /* Sort forest */
     merge_sort_nrecursive(array, NR_OF_NODES);
@@ -135,13 +137,12 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
  *
  * @param codeTable              The resulting code table
  * @param tree          The Huffman tree used to generate the code table
- * @param nr_of_leaves  The maximum number of leaves in the Huffman tree      
  */
 /* ai?: instruction fillTable is entered with @nr_of_leaves <= NR_OF_CHARS (include '\0');  */
 /* ai: instruction "fillTable" is entered with @nr_of_leaves = 128;  */
-static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_of_leaves)
+static struct code *fillTable(struct code *codeTable, const Node *tree)
 {
-    int code = 0;
+    codeword_t code = 0;
     int len = 0;
     const Node *node;
     struct stack s;
@@ -156,14 +157,14 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
      * max size of stack: n
      * nr of total nodes (inner nodes + leaves) = 2n-1
      */
-    stack_init(&s, entries, nr_of_leaves);
+    stack_init(&s, entries, NR_OF_CHARS);
     stack_push(&s, &(struct stack_entry) {tree,0,0});
     #pragma loopbound min 0 max 255
     /* ai: loop here max 2*@nr_of_leaves-1; */
     for (int i = 0; i < 2*NR_OF_NODES-1; i++) {
         e = stack_pop(&s);
         node = e->node;
-        code = e->code;
+        code = e->codeword;
         len = e->len;
         if ((node->left == NULL) && (node->right == NULL)) { // if node is a leaf
             /* ai: label here = "fillTable_if"; */
@@ -189,26 +190,27 @@ static struct code *fillTable(struct code *codeTable, const Node *tree, int nr_o
 /* ai: instruction "invertCodes" is entered with @max_code_length = 15;  */
 static void invertCodes(struct code codeTable[], struct code invCodeTable[])
 {
-    int i, n, copy;
+    int i;
+    codeword_t n, copy;
 
     #pragma loopbound min 0 max 128
     /* ai?: loop here max @nr_of_chars; */
     for (i=0; i<NR_OF_CHARS; i++){
-        n = codeTable[i].code;
+        n = codeTable[i].codeword;
         copy = 0;
-        /* max length of a code = max height of Huffman tree <= n */
+        /* max length of a codeword = max height of Huffman tree <= n */
         /* can be further bounded - see https://groups.google.com/forum/#!topic/comp.compression/m5pj1lDoeU8 */
         #pragma loopbound min 0 max 15
         /* ai?: loop here max @max_code_length; */
         for (int j = 0; j<codeTable[i].len; j++) {
-            /* max length of code only for at most 2 codes possible, others are shorter 
+            /* max length of codeword only for at most 2 codes possible, others are shorter 
              * (or if all have equal length, max possible length is not reached) */
             /* flow is (nr_of_chars+2)*(nr_of_chars-1)/2  - TODO: update this */
             /* ai: label here = "invertCodes_inner"; */
             copy = (copy<<1) | (n & 0x01);
             n = n>>1;
         }
-        invCodeTable[i] = (struct code) {.code=copy, .len = codeTable[i].len};
+        invCodeTable[i] = (struct code) {.codeword=copy, .len = codeTable[i].len};
     }
 }
 
@@ -223,7 +225,8 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
 static struct bytestream compress(const char *input, struct code codeTable[], struct code invCodeTable[])
 {
     char bit, c, x = 0;
-    int n,length,bitsLeft = 8;
+    int length,bitsLeft = 8;
+    codeword_t n;
     int originalBits = 0, compressedBits = 0;
     int compressedBytes = 0;
     unsigned char output[(7*MAX_STRING_LENGTH)/8];
@@ -240,7 +243,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
         c = input[i];
         originalBits++;
         length = codeTable[(unsigned char)c].len;
-        n = invCodeTable[(unsigned char)c].code;
+        n = invCodeTable[(unsigned char)c].codeword;
  
         #pragma loopbound min 0 max 15
         /* ai?: loop here max 15; */
@@ -287,16 +290,16 @@ struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes)
 {
     struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
 
+    *tree = buildHuffmanTree(pool_of_nodes, input);
+
+    //TODO: put codeTable and invCodeTable into SPM
     #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
         codeTable[i] = (struct code) {-1, 0};
         invCodeTable[i] = (struct code) {-1, 0};
     }
-
-    *tree = buildHuffmanTree(pool_of_nodes, input);
-    fillTable(codeTable, *tree, NR_OF_CHARS);
+    fillTable(codeTable, *tree);
     invertCodes(codeTable, invCodeTable);
-
     /* print code table */
 #ifdef ENDEBUG
     for (int i = 0; i < NR_OF_CHARS; i++) {
@@ -308,6 +311,8 @@ struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes)
     }
 #endif
 
+    //TODO use only invCodeTable, remove codeTable from SPM
+    //TODO put input partially into SPM
     return compress(input, codeTable, invCodeTable);
 }
 

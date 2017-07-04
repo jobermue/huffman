@@ -5,12 +5,13 @@
 #ifndef STACK_H
 #define STACK_H
 
+#include <stdint.h>
 #include "huffman.h"
 
 struct stack_entry {
     const Node *node;
-    int code;
-    int len;
+    codeword_t codeword;
+    uint8_t len;
 };
 
 struct stack {

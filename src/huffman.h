@@ -5,6 +5,8 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
+#include <stdint.h>
+
 #define MAX_STRING_LENGTH (4096)  //max length of a string (including null termination)
 
 #define NR_OF_ASCII_CHARS (128)
@@ -14,21 +16,23 @@
 
 /* Node of the huffman tree */
 struct node{
-    int value;
+    uint16_t value;
     char letter;
     struct node *left,*right;
 };
 
 typedef struct node Node;
 
+typedef uint16_t codeword_t;
+
 struct code {
-    int code;
-    unsigned int len;
+    codeword_t codeword;
+    uint8_t    len;
 };
 
 struct bytestream {
     unsigned char *stream;
-    int len; // length in bits
+    uint16_t len; // length in bits
 };
 
 
