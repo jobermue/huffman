@@ -34,11 +34,13 @@ loop "compress" + 1 loops MAX @strlen;
 loop "compress" + 2 loops MAX @strlen;
 loop "compress" + 3 loops MAX 15;
 
-loop "merge_sort_nrecursive" + 1 loops MAX log(@size, 2);
+loop "merge_sort_nrecursive" + 1 loops MAX(log(@size, 2));
 loop "merge_sort_nrecursive" + 2 loops MAX @size;
 #loop "merge_sort_nrecursive" + 3 loops MAX @size/2;
 #loop "merge_sort_nrecursive" + 4 loops MAX @size/2;
 #loop "merge_sort_nrecursive" + 5 loops MAX @size/2;
 
-flow ("ms_loop_3") + ("ms_loop_4") + ("ms_loop_5") <= @size ("merge_sort_nrecursive");
-flow ("ms_loop_6") <= @size ("merge_sort_nrecursive");
+#flow ("ms_loop_3") + ("ms_loop_4") + ("ms_loop_5") <= @size ("ms_loop_2");
+flow ("ms_loop_3") + ("ms_loop_4") + ("ms_loop_5") <= 127 ("ms_loop_2");
+#flow ("ms_loop_6") <= @size ("ms_loop_2");
+flow ("ms_loop_6") <= 127 ("ms_loop_2");
