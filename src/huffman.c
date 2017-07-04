@@ -276,12 +276,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
         }
     }
 
-    if (bitsLeft!=8)
-    {
-        x = x << (bitsLeft-1);
-        compressedBytes++;
-        output[compressedBytes - 1] = x;
-    }
+    x = (bitsLeft!=8) ? x << (bitsLeft-1) : x;
+    compressedBytes = (bitsLeft!=8) ? compressedBytes+1 : compressedBytes;
+    output[compressedBytes - 1] = (bitsLeft!=8) ? x : output[compressedBytes - 1];
     //assert(allocatedBytes == compressedBytes+1);
 
     /*print details of compression on the screen*/
