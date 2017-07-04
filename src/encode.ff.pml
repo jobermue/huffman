@@ -42,19 +42,6 @@ flowfacts:
     level: bitcode
     origin: user.bc
   - scope:
-      function: insertion_sort
-    lhs:
-      - factor: -8128
-        program-point:
-          marker : 0
-      - factor: 1
-        program-point:
-          marker : 1
-    op: less-equal
-    rhs: 0
-    level: bitcode
-    origin: user.bc
-  - scope:
       function: merge_sort_nrecursive
     lhs:
       - factor: -127

@@ -73,7 +73,7 @@ void merge_helper(Node **input, int left, int right, Node **scratch)
 __attribute__((noinline))
 void merge_sort(Node **arr, int size)
 {
-    assert(size <= NR_OF_CHARS);
+  //assert(size <= NR_OF_CHARS);
     Node *scratch[NR_OF_CHARS];
 
     merge_helper(arr, 0, size, scratch);
@@ -90,7 +90,7 @@ void merge_sort(Node **arr, int size)
 __attribute__((noinline))
 void merge_sort_nrecursive(Node **arr, int size)
 {
-    assert(size <= NR_OF_CHARS);
+  //assert(size <= NR_OF_CHARS);
     Node *scratch[NR_OF_CHARS];
 
     int rght, rend;

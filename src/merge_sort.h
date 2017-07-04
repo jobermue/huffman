@@ -9,4 +9,7 @@
 __attribute__((noinline))
 void merge_sort(Node **arr, int size);
 
+__attribute__((noinline))
+void merge_sort_nrecursive(Node **arr, int size);
+
 #endif
