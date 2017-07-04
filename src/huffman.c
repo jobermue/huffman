@@ -47,13 +47,13 @@ static void print_code(const struct code *code)
 
 static Node *get_min(queue_t *q1, queue_t *q2)
 {
-    if (queue_empty(q2)) return queue_dequeue(q1);
+    Node *ret = NULL;
 
-    if (queue_empty(q1) || queue_peek(q2) < queue_peek(q1)) {
-        return queue_dequeue(q2);
-    } else {
-        return queue_dequeue(q1);
-    }
+    ret = queue_empty(q2) ? queue_dequeue(q1) : ret;
+    ret = !queue_empty(q2) && (queue_empty(q1) || queue_peek(q2) < queue_peek(q1)) ? queue_dequeue(q2) : ret;
+    ret = !queue_empty(q2) && !(queue_empty(q1) || queue_peek(q2) < queue_peek(q1)) ? queue_dequeue(q1) : ret;
+
+    return ret;
 }
 
 
