@@ -7,6 +7,11 @@
 
 #define MAX_STRING_LENGTH (4096)  //max length of a string (including null termination)
 
+#define NR_OF_ASCII_CHARS (128)
+#define NR_OF_CHARS (NR_OF_ASCII_CHARS)
+#define NR_OF_NODES (NR_OF_CHARS) // includes '\0'
+#define MIN_VALID_CHAR (0)
+
 /* Node of the huffman tree */
 struct node{
     int value;

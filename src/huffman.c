@@ -16,11 +16,6 @@
 #include "insertion_sort.h"
 #include "merge_sort.h"
 
-#define NR_OF_ASCII_CHARS (128)
-#define NR_OF_CHARS (NR_OF_ASCII_CHARS)
-#define NR_OF_NODES (NR_OF_CHARS) // includes '\0'
-#define MIN_VALID_CHAR (0)
-
 #ifdef ENDEBUG
 #define DEBUG(...) do { fprintf(stderr, __VA_ARGS__); } while(0)
 #else
@@ -116,7 +111,7 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
 
     /* Sort forest */
     //insertion_sort(array, nr_of_nodes);
-    merge_sort(array, nr_of_nodes);
+    merge_sort_nrecursive(array, NR_OF_NODES);
 
     /* Combine subtrees into a single tree */
     queue_init(&q1, array, NR_OF_NODES, 0, NR_OF_NODES-1);
