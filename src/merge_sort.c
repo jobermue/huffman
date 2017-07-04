@@ -79,50 +79,64 @@ void merge_sort(Node **arr, int size)
     merge_helper(arr, 0, size, scratch);
 }
 
+/**
+ * @brief Sort given array of integers using non-recursive merge sort
+ * (see https://stackoverflow.com/questions/1557894/non-recursive-merge-sort#17957133)
+ *
+ * @param input  array of integers
+ * @param size   number of elements in the array (user register upper bound: @size)
+ */
+/* ai: instruction merge_sort_nrecursive is entered with @size = 127;  */
 __attribute__((noinline))
-void merge_sort_nrecursive(Node **a, int num)
+void merge_sort_nrecursive(Node **arr, int size)
 {
-    assert(num <= 127);
-    Node *b[127];
+    assert(size <= 127);
+    Node *scratch[127];
 
     int rght, wid, rend;
-    int i, j, m, t;
+    int i=0, j=0, m=0, t=0;
 
-    for(int k=1; k < num; k *= 2)
+    #pragma loopbound min 1 max 7
+    for(int k=1; k < size; k *= 2)
     {
-        for(int left=0; left+k < num; left += 2*k)
+        #pragma loopbound min 0 max 64
+        for(int left=0; left+k < size; left += 2*k)
         {
             rght = left + k;
             rend = rght + k;
-            if(rend > num) rend = num;
+            if(rend > size)
+            {
+                rend = size;
+            } 
             while(i < rght && j < rend)
             {
-                if(a[i] <= a[j])
+                if(arr[i] <= arr[j])
                 {
-                    b[m] = a[i];
+                    scratch[m] = arr[i];
                     i++;
                 }
                 else
                 {
-                    b[m] = a[j];
+                    scratch[m] = arr[j];
                     j++;
                 }
                 m++;
             }
             while(i < rght)
             {
-                b[m] = a[i];
+                scratch[m] = arr[i];
                 i++;
                 m++;
             }
-            while(i < rend)
+            while(j < rend)
             {
-                b[m] = a[j];
+                scratch[m] = arr[j];
+                j++;
                 m++;
             }
             for(m = left; m < rend; m++)
             {
-                a[m] = b[m];
+                arr[m] = scratch[m];
             }
         }
     }

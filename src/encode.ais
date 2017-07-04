@@ -33,3 +33,9 @@ loop "findSmallest" + 3 loops MAX @nr_of_nodes;
 loop "compress" + 1 loops MAX @strlen;
 loop "compress" + 2 loops MAX @strlen;
 loop "compress" + 3 loops MAX 15;
+
+loop "merge_sort_nrecursive" + 1 loops MAX log(@size, 2);
+loop "merge_sort_nrecursive" + 2 loops MAX @size;
+#loop "merge_sort_nrecursive" + 3 loops MAX @size/2;
+#loop "merge_sort_nrecursive" + 4 loops MAX @size/2;
+#loop "merge_sort_nrecursive" + 5 loops MAX @size/2;
