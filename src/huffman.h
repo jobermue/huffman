@@ -31,7 +31,7 @@ struct code {
 };
 
 struct bytestream {
-    unsigned char *stream;
+    char *data;
     uint16_t len; // length in bits
 };
 
@@ -42,8 +42,10 @@ struct bytestream {
  * @param input          Text to be compressed
  * @param tree           The Huffman tree constructed from the input text is returned here
  * @param pool_of_nodes  Data structure with enough space for Huffman tree (2n-1)
+ * @param output         Data structure with enough space for encoded output 7/8*MAX_STRING_LENGTH
  */
-struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes);
+struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes, char *output);
+
 
 /**
  * @brief Decodes the provided input 

@@ -38,6 +38,7 @@ static int run_test(const char *input, const char *test_name)
     Node *tree; //pointer to root node of tree
     char test_input[MAX_STRING_LENGTH+1];
     Node pool_of_nodes[2*NR_OF_CHARS-1];
+    char output[(7*MAX_STRING_LENGTH)/8];
     struct bytestream compressed;
 
     memset(test_input, 0, MAX_STRING_LENGTH + 1);
@@ -52,7 +53,7 @@ static int run_test(const char *input, const char *test_name)
     clear_caches();
 #endif
     MEASUREMENT_START(cyc);
-    compressed = encode(test_input, &tree, pool_of_nodes);
+    compressed = encode(test_input, &tree, pool_of_nodes, output);
     // stop measurement
     MEASUREMENT_STOP(cyc);
     MEASUREMENT_DUMP(cyc);
@@ -62,7 +63,7 @@ static int run_test(const char *input, const char *test_name)
     // compare decompressed with original
     DEBUG("compressed:");
     for (int i = 0; i*8 < compressed.len; i++) {
-        DEBUG(" %02x", (unsigned int) compressed.stream[i]);
+        DEBUG(" %02x", (unsigned char) compressed.data[i]);
     }
     DEBUG("\n");
     DEBUG("original text: %s\n", input);
@@ -77,7 +78,7 @@ static int run_test(const char *input, const char *test_name)
         ret = 0;
     }
     fprintf(stderr, "-------------------------------------\n\n");
-    //free(compressed.stream);
+    //free(compressed.data);
     //free(decompressed);
 
     fflush(stderr);

@@ -222,39 +222,34 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
  * @param invCodeTable inverted Huffman code table
 */
 /* ai: instruction "compress" is entered with @strlen = 4096;  */
-static struct bytestream compress(const char *input, struct code invCodeTable[])
+static struct bytestream compress(const char *input, struct code invCodeTable[], char *output)
 {
     char bit, c, x = 0;
-    int length,bitsLeft = 8;
+    uint8_t bitsLeft = 8;
     codeword_t n;
-    int originalBits = 0, compressedBits = 0;
-    int compressedBytes = 0;
-    unsigned char output[(7*MAX_STRING_LENGTH)/8];
+    uint16_t compressedBits = 0;
+    uint16_t compressedBytes = 0;
+    //unsigned char output[(7*MAX_STRING_LENGTH)/8];
 
 #ifndef HOST_COMPILE
     __llvm_pcmarker(5);
 #endif
 
-    originalBits = 0; //TODO: rename to originalBytes, as it actually counts bytes
-
     #pragma loopbound min 0 max 4096
     /* ai?: loop here max @strlen; */
-    for (int i = 0; i < MAX_STRING_LENGTH; i++) {
+    int i, j;
+    for (i = 0; i < MAX_STRING_LENGTH; i++) {
         c = input[i];
-        originalBits++;
-        length = invCodeTable[(unsigned char)c].len;
         n = invCodeTable[(unsigned char)c].codeword;
  
         #pragma loopbound min 0 max 15
         /* ai?: loop here max 15; */
-        for (int j=0; j < length; j++) {
+        for (j = 0; j < invCodeTable[(unsigned char)c].len; j++) {
             /* ai: label here = "compress_inner_while"; */
 #ifndef HOST_COMPILE
             __llvm_pcmarker(6);
 #endif
-            compressedBits++;
             bit = (n & 0x01);
-            n = n>>1;
             x = x | bit;
             bitsLeft--;
             if (bitsLeft==0) {
@@ -262,31 +257,36 @@ static struct bytestream compress(const char *input, struct code invCodeTable[])
 #ifndef HOST_COMPILE
                __llvm_pcmarker(7);
 #endif
+                output[compressedBytes] = x;
                 compressedBytes++;
-                output[compressedBytes - 1] = x;
 
                 x = 0;
                 bitsLeft = 8;
             }
             x = x << 1;
+            n = n>>1;
         }
+        compressedBits += j;
     }
 
-    x = (bitsLeft!=8) ? x << (bitsLeft-1) : x;
-    compressedBytes = (bitsLeft!=8) ? compressedBytes+1 : compressedBytes;
-    output[compressedBytes - 1] = (bitsLeft!=8) ? x : output[compressedBytes - 1];
+    x                       = (bitsLeft!=8) ? x << (bitsLeft-1) : x;
+    output[compressedBytes] = (bitsLeft!=8) ? x                 : output[compressedBytes];
+    compressedBytes         = (bitsLeft!=8) ? compressedBytes+1 : compressedBytes;
     //assert(allocatedBytes == compressedBytes+1);
 
     /*print details of compression on the screen*/
-    DEBUG("Original bits = %d\n",originalBits*8);
-    DEBUG("Compressed bits = %d\n",compressedBits);
-    DEBUG("Compressed to %.2f%% of memory\n",((float)compressedBits/(originalBits*8))*100);
+#ifdef ENDEBUG
+    int originalBytes = i;
+#endif
+    DEBUG("Original bits = %d\n", originalBytes*8);
+    DEBUG("Compressed bits = %d\n", compressedBits);
+    DEBUG("Compressed to %.2f%% of memory\n", ((float)compressedBits/(originalBytes*8))*100);
 
-    struct bytestream result = {.stream = output, .len = compressedBits};
+    struct bytestream result = {.data = output, .len = compressedBits};
     return result;
 }
 
-struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes)
+struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes, char *output)
 {
     struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
 
@@ -313,7 +313,7 @@ struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes)
 
     //TODO use only invCodeTable, remove codeTable from SPM
     //TODO put input partially into SPM
-    return compress(input, invCodeTable);
+    return compress(input, invCodeTable, output);
 }
 
 
@@ -332,7 +332,7 @@ char *decode(const struct bytestream input, const Node *tree)
     char *output = { 0 };
 
     for (int j = 0; j*8 < input.len; j++) {
-        c = input.stream[j];
+        c = input.data[j];
         for (i=0;i<8 && j*8+i<input.len;i++){
             bit = c & mask;
             c = c << 1;
