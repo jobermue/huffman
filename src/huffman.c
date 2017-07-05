@@ -13,7 +13,6 @@
 #include "stack.h"
 #include "queue.h"
 #include "huffman.h"
-#include "insertion_sort.h"
 #include "merge_sort.h"
 
 #ifdef ENDEBUG
@@ -110,7 +109,6 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
     }
 
     /* Sort forest */
-    //insertion_sort(array, nr_of_nodes);
     merge_sort_nrecursive(array, NR_OF_NODES);
 
     /* Combine subtrees into a single tree */
