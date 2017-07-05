@@ -70,20 +70,21 @@ static Node *get_min(queue_t *q1, queue_t *q2)
 static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
 {
     Node *combined;
-    Node *array[NR_OF_NODES]; //put into SPM
+    Node *array[NR_OF_NODES];
     Node *array_q2[NR_OF_NODES-1];
-    queue_t q1, q2; //put into SPM
+    queue_t q1, q2;
     int subTrees;
     Node *smallOne, *smallTwo;
-    uint16_t letter_frequencies[NR_OF_CHARS]; //put into SPM
+    uint16_t letter_frequencies[NR_OF_CHARS];
 
 #if defined(__PATMOS__) && defined(USE_SPM)
-  _SPM uint16_t *spm_letter_frequencies = (_SPM uint16_t *) SPM_BASE;
-  //_SPM const char *spm_input = (_SPM const char *) (SPM_BASE + sizeof(uint16_t)*NR_OF_CHARS);
-  //spm_copy_from_ext(spm_input, input_text, SPM_SIZE - sizeof(uint16_t)*NR_OF_CHARS );
+    _SPM uint16_t *spm_letter_frequencies = (_SPM uint16_t *) SPM_BASE;
+    _SPM lfreq_t *spm_array = (_SPM lfreq_t *) (SPM_BASE + sizeof(uint16_t)*NR_OF_CHARS);
+    //spm_copy_from_ext(spm_input, input_text, SPM_SIZE - sizeof(uint16_t)*NR_OF_CHARS );
 #else /* __PATMOS__ */
-  uint16_t *spm_letter_frequencies = letter_frequencies;
-  //const char *spm_input = invCodeTable;
+    uint16_t *spm_letter_frequencies = letter_frequencies;
+    lfreq_t f_array[NR_OF_NODES];
+    lfreq_t *spm_array = f_array;
 #endif /* __PATMOS__ */
 
 
@@ -110,22 +111,29 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
         }
     }
 #endif
+    #pragma loopbound min 0 max 128
+    /* ai?: loop here loops max @nr_of_chars; */
+    for (int i = MIN_VALID_CHAR; i < NR_OF_CHARS; i++) {
+        //assert (j < NR_OF_NODES);
+        spm_array[i].letter = (char) i;
+        spm_array[i].freq   = spm_letter_frequencies[i];
+    }
+
+    /* Sort forest */
+    merge_sort_nrecursive(spm_array, NR_OF_NODES);
+
     int j = 0;
     #pragma loopbound min 0 max 128
     /* ai?: loop here loops max @nr_of_chars; */
     for (int i = MIN_VALID_CHAR; i < NR_OF_CHARS; i++) {
         //assert (j < NR_OF_NODES);
         array[j] = &pool_of_nodes[j];
-        array[j]->value = spm_letter_frequencies[i];
-        array[j]->letter = (char) i;
-        array[j]->left = NULL;
-        array[j]->right = NULL;
+        array[j]->value  = spm_array[j].freq;
+        array[j]->letter = spm_array[j].letter;
+        array[j]->left   = NULL;
+        array[j]->right  = NULL;
         j++;
     }
-    //TODO: remove letter_frequencies from SPM
-
-    /* Sort forest */
-    merge_sort_nrecursive(array, NR_OF_NODES);
 
     /* Combine subtrees into a single tree */
     queue_init(&q1, array, NR_OF_NODES, 0, NR_OF_NODES-1);

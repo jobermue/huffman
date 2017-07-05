@@ -23,6 +23,13 @@ struct node{
 
 typedef struct node Node;
 
+struct lfreq {
+  char     letter;
+  uint16_t freq;
+};
+
+typedef struct lfreq lfreq_t;
+
 typedef uint16_t codeword_t;
 
 struct code {

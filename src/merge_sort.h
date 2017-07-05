@@ -6,10 +6,17 @@
 #define MERGE_SORT_H
 
 
-__attribute__((noinline))
-void merge_sort(Node **arr, int size);
+#if defined(__PATMOS__) && defined(USE_SPM)
 
-__attribute__((noinline))
-void merge_sort_nrecursive(Node **arr, int size);
+#include <machine/spm.h>
+
+void merge_sort_nrecursive(_SPM lfreq_t *arr, int size);
+
+#else /* __PATMOS__ */
+
+void merge_sort_nrecursive(lfreq_t *arr, int size);
+
+#endif /* __PATMOS__ */
+
 
 #endif
