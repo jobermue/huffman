@@ -1,0 +1,75 @@
+pasim -V --gsize 67108864 --bsize 16 --tdelay 0 --gtime 7 --dcsize 2048 --dlsize 32 --dckind lru4 --scsize 2048 --sckind block --icache mcache --mcsize 4096 --mbsize 64 --mcmethods 32 --mckind fifo test.elf 2> test.sim
+MEASUREMENT(test.c:51) cyc = 5304896
+-------------------------------------
+    Test hello_world ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 5351124
+-------------------------------------
+    Test 0 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 5348758
+-------------------------------------
+    Test 1 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 5358614
+-------------------------------------
+    Test 2 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 7100074
+-------------------------------------
+    Test 3 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 5416672
+-------------------------------------
+    Test 4 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 5863272
+-------------------------------------
+    Test 5 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 8179292
+-------------------------------------
+    Test 6 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 8291278
+-------------------------------------
+    Test 7 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 8661158
+-------------------------------------
+    Test 8 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 9333186
+-------------------------------------
+    Test uniform distribution ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 6759440
+-------------------------------------
+    Test fibonacci_16 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 7609940
+-------------------------------------
+    Test fibonacci_17 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:51) cyc = 9175574
+-------------------------------------
+    Test fibonacci_17+ones ran successfully!
+-------------------------------------
+
+-------------------------------------
+  All tests ran successfully!
+-------------------------------------
+
