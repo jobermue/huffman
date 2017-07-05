@@ -62,8 +62,9 @@ As the figures above show, applying a single-path generator decreases the WCET, 
 
 In WCET-oriented programming the aim is to make the algorithm as independent from the input as possible. This results in execution times that do not differ too much from each other, as they increase and move towards the WCET. The positive effect is that the WCET decreases compared to non-WCET oriented implementations.
 
-To achive this goal we replaced the `insertion sort` algorithm by the `merge sort`, which has worse BCET, but better WCET. We took a [non-recursive merge sort] algorithm to be able to analyze the WCETs.
-
+To achive this goal we replaced the `insertion sort` algorithm with the `merge sort` algorithm, which has worse BCET, but better WCET. We took a [non-recursive merge sort] algorithm to be able to analyze the WCETs with the given tools.
+Another WCET-oriented improvement is to work with an input string of fixed lenth (4096). The remaining string is replaced with `0` which are also processed.
+`while` loops, with variable variable loop iterations, were replaced with `for` loops with a fixed number of loop iterations.
 
 The following figure shows the execution times on hardware for `O0`:
 ![Figure 7]
