@@ -1,0 +1,78 @@
+[++++++++++] 323208/323208 bytes
+sent 329578 raw bytes compressed to 150315 bytes (45%)
+MEASUREMENT(test.c:55) cyc = 6307349
+-------------------------------------
+    Test hello_world ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6301180
+-------------------------------------
+    Test 0 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6300790
+-------------------------------------
+    Test 1 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6305297
+-------------------------------------
+    Test 2 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6309509
+-------------------------------------
+    Test 3 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6307157
+-------------------------------------
+    Test 4 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6309668
+-------------------------------------
+    Test 5 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6309424
+-------------------------------------
+    Test 6 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6310149
+-------------------------------------
+    Test 7 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6299438
+-------------------------------------
+    Test 8 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6300621
+-------------------------------------
+    Test uniform distribution ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6302869
+-------------------------------------
+    Test fibonacci_16 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6301620
+-------------------------------------
+    Test fibonacci_17 ran successfully!
+-------------------------------------
+
+MEASUREMENT(test.c:55) cyc = 6299147
+-------------------------------------
+    Test fibonacci_17+ones ran successfully!
+-------------------------------------
+
+-------------------------------------
+  All tests ran successfully!
+-------------------------------------
+
+EXIT 0
+
