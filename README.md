@@ -46,6 +46,7 @@ The following figure shows the execution times on hardware for `O2` witch single
 ![Figure 6]
 
 The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos` witch single-path generated code:
+
 | Program | local | dcideal | full |
 | ------- | ----- | ------- | ---- |
 | pasim   | TBA   | TBA     | TBA  |
@@ -74,6 +75,7 @@ The following figure shows the execution times on hardware for `O2`:
 ![Figure 9]
 
 The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos`:
+
 | Program | local | dcideal | full |
 | ------- | ----- | ------- | ---- |
 | pasim   | TBA   | TBA     | TBA  |
@@ -90,6 +92,7 @@ The following figure shows the execution times on hardware for `O2` with single-
 ![Figure 12]
 
 The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos` witch single-path generated code:
+
 | Program | local | dcideal | full |
 | ------- | ----- | ------- | ---- |
 | pasim   | TBA   | TBA     | TBA  |
