@@ -50,7 +50,7 @@ doxy:
 
 $(TARGET).elf: TOOL = clang
 $(TARGET).elf $(TARGET).elf.pml: $(SRCS)
-	patmos-clang -O0 -g -o $(TARGET).elf \
+	patmos-clang -O0 -g -o $(TARGET).elf $(shell $(TOOL_CONFIG)) \
 	  -Xgold -T$(PATMOS_HW_BASEDIR)/hardware/spm_ram.t \
 	  -Xllc -mpreemit-bitcode=$(TARGET).elf.bc \
 	  -mpatmos-disable-vliw \
