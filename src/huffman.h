@@ -35,11 +35,11 @@ struct bytestream {
 /**
  * @brief Huffman encodes the provided input and generates a Huffman tree.
  *
- * @param input Text to be compressed
- * @param tree  The Huffman tree constructed from the input text is returned here
+ * @param input          Text to be compressed
+ * @param tree           The Huffman tree constructed from the input text is returned here
+ * @param pool_of_nodes  Data structure with enough space for Huffman tree (2n-1)
  */
-struct bytestream encode(const char *input, Node **tree);
-
+struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes);
 
 /**
  * @brief Decodes the provided input 
