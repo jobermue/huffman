@@ -3,6 +3,7 @@
  */
 
 #include <assert.h>
+#include <stdint.h>
 #include "huffman.h"
 
 /* Helper function for finding the max of two Nodes */
@@ -90,22 +91,23 @@ void merge_sort(Node **arr, int size)
 __attribute__((noinline))
 void merge_sort_nrecursive(Node **arr, int size)
 {
-    assert(size <= NR_OF_CHARS);
+    //assert(size <= NR_OF_CHARS);
     Node *scratch[NR_OF_CHARS];
 
-    int rght, rend;
-    int i=0, j=0, m=0;
+    uint16_t rght, rend;
+    uint16_t i=0, j=0, m=0;
 
     #pragma loopbound min 1 max 7
-    for(int k=1; k < size; k *= 2)
+    for(uint16_t k=1; k < size; k *= 2)
     {
+        /* ai: label here = "ms_loop_1"; */
         #pragma loopbound min 0 max 64
-        for(int left=0; left+k < size; left += 2*k)
+        for(uint16_t left=0; left+k < size; left += 2*k)
         {
+            /* ai: label here = "ms_loop_2"; */
 #ifndef HOST_COMPILE
             __llvm_pcmarker(8);
 #endif
-            /* ai: LABEL here = "ms_loop_2"; */
             rght = left + k;
             rend = rght + k;
             if(rend > size)
@@ -119,10 +121,10 @@ void merge_sort_nrecursive(Node **arr, int size)
 
             while(i < rght && j < rend)
             {
+                /* ai: LABEL here = "ms_loop_3"; */
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(9);
 #endif
-                /* ai: LABEL here = "ms_loop_3"; */
                 if(arr[i] <= arr[j])
                 {
                     scratch[m] = arr[i];
@@ -137,20 +139,20 @@ void merge_sort_nrecursive(Node **arr, int size)
             }
             while(i < rght)
             {
+                /* ai: LABEL here = "ms_loop_4"; */
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(10);
 #endif
-                /* ai: LABEL here = "ms_loop_4"; */
                 scratch[m] = arr[i];
                 i++;
                 m++;
             }
             while(j < rend)
             {
+                /* ai: LABEL here = "ms_loop_5"; */
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(11);
 #endif
-                /* ai: LABEL here = "ms_loop_5"; */
                 scratch[m] = arr[j];
                 j++;
                 m++;
@@ -158,10 +160,10 @@ void merge_sort_nrecursive(Node **arr, int size)
 
             for(m = left; m < rend; m++)
             {
+                /* ai: LABEL here = "ms_loop_6"; */
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(12);
 #endif
-                /* ai: LABEL here = "ms_loop_6"; */
                 arr[m] = scratch[m];
             }
         }
