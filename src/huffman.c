@@ -77,17 +77,27 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
     Node *smallOne, *smallTwo;
     uint16_t letter_frequencies[NR_OF_CHARS]; //put into SPM
 
+#if defined(__PATMOS__) && defined(USE_SPM)
+  _SPM uint16_t *spm_letter_frequencies = (_SPM uint16_t *) SPM_BASE;
+  //_SPM const char *spm_input = (_SPM const char *) (SPM_BASE + sizeof(uint16_t)*NR_OF_CHARS);
+  //spm_copy_from_ext(spm_input, input_text, SPM_SIZE - sizeof(uint16_t)*NR_OF_CHARS );
+#else /* __PATMOS__ */
+  uint16_t *spm_letter_frequencies = letter_frequencies;
+  //const char *spm_input = invCodeTable;
+#endif /* __PATMOS__ */
+
+
     /* Get letter frequencies in input text */
     #pragma loopbound min 0 max 128
     /* ai?: loop here max @nr_of_chars; */
     for (int i = 0; i < NR_OF_CHARS; i++) {
-        letter_frequencies[i] = 0;
+        spm_letter_frequencies[i] = 0;
     }
     //assert(strlen(input_text) < 4096);
     #pragma loopbound min 0 max 4096
     /* ai?: loop here max @strlen ; */
     for (int i = 0; i < MAX_STRING_LENGTH; i++) {
-        letter_frequencies[(unsigned char)input_text[i]]++;
+        spm_letter_frequencies[(unsigned char)input_text[i]]++;
     }
 
     /* Initialize forest with single node trees (one per character) */
@@ -95,8 +105,8 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
     #pragma loopbound min 0 max 128
     /* ai?: loop here max @nr_of_chars; */
     for (int i = MIN_VALID_CHAR; i < NR_OF_CHARS; i++) {
-        if (letter_frequencies[i] > 0) {
-            DEBUG("letter frequency of %c: %i\n", (char) i, letter_frequencies[i]);
+        if (spm_letter_frequencies[i] > 0) {
+            DEBUG("letter frequency of %c: %i\n", (char) i, spm_letter_frequencies[i]);
         }
     }
 #endif
@@ -106,7 +116,7 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
     for (int i = MIN_VALID_CHAR; i < NR_OF_CHARS; i++) {
         //assert (j < NR_OF_NODES);
         array[j] = &pool_of_nodes[j];
-        array[j]->value = letter_frequencies[i];
+        array[j]->value = spm_letter_frequencies[i];
         array[j]->letter = (char) i;
         array[j]->left = NULL;
         array[j]->right = NULL;
