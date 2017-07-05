@@ -128,7 +128,7 @@ void merge_sort_nrecursive(Node **arr, int size)
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(10);
 #endif
-                if(arr[i] <= arr[j])
+                if(arr[i]->value <= arr[j]->value)
                 {
                     scratch[m] = arr[i];
                     i++;
