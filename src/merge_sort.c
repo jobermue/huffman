@@ -74,7 +74,7 @@ void merge_helper(Node **input, int left, int right, Node **scratch)
 __attribute__((noinline))
 void merge_sort(Node **arr, int size)
 {
-    assert(size <= NR_OF_CHARS);
+  //assert(size <= NR_OF_CHARS);
     Node *scratch[NR_OF_CHARS];
 
     merge_helper(arr, 0, size, scratch);
@@ -108,6 +108,7 @@ void merge_sort_nrecursive(Node **arr, int size)
 #ifndef HOST_COMPILE
             __llvm_pcmarker(8);
 #endif
+            /* ai: LABEL here = "ms_loop_2"; */
             rght = left + k;
             rend = rght + k;
             if(rend > size)
@@ -125,6 +126,7 @@ void merge_sort_nrecursive(Node **arr, int size)
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(9);
 #endif
+                /* ai: LABEL here = "ms_loop_3"; */
                 if(arr[i] <= arr[j])
                 {
                     scratch[m] = arr[i];
@@ -143,6 +145,7 @@ void merge_sort_nrecursive(Node **arr, int size)
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(10);
 #endif
+                /* ai: LABEL here = "ms_loop_4"; */
                 scratch[m] = arr[i];
                 i++;
                 m++;
@@ -153,6 +156,7 @@ void merge_sort_nrecursive(Node **arr, int size)
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(11);
 #endif
+                /* ai: LABEL here = "ms_loop_5"; */
                 scratch[m] = arr[j];
                 j++;
                 m++;
@@ -164,6 +168,7 @@ void merge_sort_nrecursive(Node **arr, int size)
 #ifndef HOST_COMPILE
                 __llvm_pcmarker(12);
 #endif
+                /* ai: LABEL here = "ms_loop_6"; */
                 arr[m] = scratch[m];
             }
         }
