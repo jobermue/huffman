@@ -7,7 +7,6 @@ flow ("fillTable_if") <= 128 ("fillTable");
 #flow ("invertCodes_inner") <= 32895 ("invertCodes"); has to be
 #updated, as code length could be bounded now
 
-
 #flow ("compress_inner_while") <= 7*4096 ("compress");
 flow ("compress_inner_while") <= 28672 ("compress");
 
@@ -27,13 +26,16 @@ loop "invertCodes" + 2 loops MAX @max_code_length;
 loop "compress" + 1 loops MAX @strlen;
 loop "compress" + 2 loops MAX 15;
 
-loop "merge_sort_nrecursive" + 1 loops MAX(log(@size, 2));
-loop "merge_sort_nrecursive" + 2 loops MAX @size;
-#loop "merge_sort_nrecursive" + 3 loops MAX @size/2;
-#loop "merge_sort_nrecursive" + 4 loops MAX @size/2;
-#loop "merge_sort_nrecursive" + 5 loops MAX @size/2;
+flow ("ms_loop_3") <= 128; # ("ms_loop_2");
+
+loop "ms_loop_1" MAX (log(@size, 2));
+loop "ms_loop_2" MAX @size/2;
+loop "ms_loop_3" MAX @size;
+loop "ms_loop_4" MAX @size;
+loop "ms_loop_5" MAX @size;
+loop "ms_loop_6" MAX @size;
 
 #flow ("ms_loop_3") + ("ms_loop_4") + ("ms_loop_5") <= @size ("ms_loop_2");
-flow ("ms_loop_3") + ("ms_loop_4") + ("ms_loop_5") <= 127 ("ms_loop_2");
+flow ("ms_loop_3") + ("ms_loop_4") + ("ms_loop_5") <= 128 ("ms_loop_1");
 #flow ("ms_loop_6") <= @size ("ms_loop_2");
-flow ("ms_loop_6") <= 127 ("ms_loop_2");
+flow ("ms_loop_6") <= 128 ("ms_loop_1"); # ("ms_loop_2");
