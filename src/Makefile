@@ -24,7 +24,7 @@ LIBS =
 DOXYGEN = doxygen
 
 # change here or set at the command line with 'make PATMOS_CONFIG=full ...'
-PATMOS_CONFIG ?= local
+PATMOS_CONFIG ?= full
 PATMOS_CONFIG_PATH = ../configurations/config_$(PATMOS_CONFIG).pml
 
 TOOL_CONFIG = platin tool-config -t $(TOOL) -i $(PATMOS_CONFIG_PATH)
@@ -50,7 +50,7 @@ doxy:
 
 $(TARGET).elf: TOOL = clang
 $(TARGET).elf $(TARGET).elf.pml: $(SRCS)
-	patmos-clang -O0 -g -o $(TARGET).elf \
+	patmos-clang -O0 -g -o $(TARGET).elf $(shell $(TOOL_CONFIG)) \
 	  -Xgold -T$(PATMOS_HW_BASEDIR)/hardware/spm_ram.t \
 	  -Xllc -mpreemit-bitcode=$(TARGET).elf.bc \
 	  -mpatmos-disable-vliw \

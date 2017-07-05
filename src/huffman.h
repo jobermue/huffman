@@ -5,6 +5,10 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
+#define NR_OF_ASCII_CHARS (128)
+#define NR_OF_CHARS (NR_OF_ASCII_CHARS)
+#define NR_OF_NODES (NR_OF_CHARS-1) // exclude '\0'
+
 /* Node of the huffman tree */
 struct node{
     int value;

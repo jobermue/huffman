@@ -15,10 +15,6 @@
 #include "huffman.h"
 #include "insertion_sort.h"
 
-#define NR_OF_ASCII_CHARS (128)
-#define NR_OF_CHARS (NR_OF_ASCII_CHARS)
-#define NR_OF_NODES (NR_OF_CHARS-1) // exclude '\0'
-
 #ifdef ENDEBUG
 #define DEBUG(...) do { fprintf(stderr, __VA_ARGS__); } while(0)
 #else
