@@ -219,10 +219,10 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
  * @brief function to compress the input
  *
  * @param input Text to be compressed
- * @param codeTable inverted Huffman code table
+ * @param invCodeTable inverted Huffman code table
 */
 /* ai: instruction "compress" is entered with @strlen = 4096;  */
-static struct bytestream compress(const char *input, struct code codeTable[], struct code invCodeTable[])
+static struct bytestream compress(const char *input, struct code invCodeTable[])
 {
     char bit, c, x = 0;
     int length,bitsLeft = 8;
@@ -242,7 +242,7 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     for (int i = 0; i < MAX_STRING_LENGTH; i++) {
         c = input[i];
         originalBits++;
-        length = codeTable[(unsigned char)c].len;
+        length = invCodeTable[(unsigned char)c].len;
         n = invCodeTable[(unsigned char)c].codeword;
  
         #pragma loopbound min 0 max 15
@@ -313,7 +313,7 @@ struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes)
 
     //TODO use only invCodeTable, remove codeTable from SPM
     //TODO put input partially into SPM
-    return compress(input, codeTable, invCodeTable);
+    return compress(input, invCodeTable);
 }
 
 
