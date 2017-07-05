@@ -144,7 +144,11 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
  */
 /* ai?: instruction fillTable is entered with @nr_of_leaves <= NR_OF_CHARS (include '\0');  */
 /* ai: instruction "fillTable" is entered with @nr_of_leaves = 128;  */
+#if defined(__PATMOS__) && defined(USE_SPM)
+static _SPM struct code *fillTable(_SPM struct code *codeTable, const Node *tree)
+#else
 static struct code *fillTable(struct code *codeTable, const Node *tree)
+#endif /* __PATMOS__ */
 {
     codeword_t code = 0;
     int len = 0;
@@ -229,7 +233,11 @@ static void invertCodes(struct code codeTable[], struct code invCodeTable[])
  * @param invCodeTable inverted Huffman code table
 */
 /* ai: instruction "compress" is entered with @strlen = 4096;  */
+#if defined(__PATMOS__) && defined(USE_SPM)
+static struct bytestream compress(const char *input, _SPM struct code *invCodeTable, char *output)
+#else
 static struct bytestream compress(const char *input, struct code invCodeTable[], char *output)
+#endif /* __PATMOS__ */
 {
     char bit, c, x = 0;
     uint8_t bitsLeft = 8;
@@ -242,9 +250,9 @@ static struct bytestream compress(const char *input, struct code invCodeTable[],
     __llvm_pcmarker(5);
 #endif
 
+    int i, j;
     #pragma loopbound min 0 max 4096
     /* ai?: loop here max @strlen; */
-    int i, j;
     for (i = 0; i < MAX_STRING_LENGTH; i++) {
         c = input[i];
         n = invCodeTable[(unsigned char)c].codeword;
