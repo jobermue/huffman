@@ -318,10 +318,9 @@ static struct bytestream compress(const char *input, struct code codeTable[], st
     return result;
 }
 
-struct bytestream encode(const char *input, Node **tree)
+struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes)
 {
     struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
-    Node *pool_of_nodes = malloc(sizeof(Node) * (2*NR_OF_CHARS-1));
 
     #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
