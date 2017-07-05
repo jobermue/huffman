@@ -50,7 +50,7 @@ static int run_test(const char *input, const char *test_name)
 
     // start measurement
 #ifndef HOST_COMPILE
-    clear_caches();
+    //clear_caches();
 #endif
     MEASUREMENT_START(cyc);
     compressed = encode(test_input, &tree, pool_of_nodes, output);

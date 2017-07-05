@@ -67,6 +67,7 @@ static Node *get_min(queue_t *q1, queue_t *q2)
  */
 /* ai: instruction "buildHuffmanTree" is entered with @nr_of_chars = 128;  */
 /* ai: instruction "buildHuffmanTree" is entered with @strlen = 4096;  */
+/* ai: instruction "buildHuffmanTree" is entered with @spm_size = 2048;  */
 static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
 {
     Node *combined;
@@ -78,12 +79,11 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
     uint16_t letter_frequencies[NR_OF_CHARS]; //put into SPM
 
 #if defined(__PATMOS__) && defined(USE_SPM)
-  _SPM uint16_t *spm_letter_frequencies = (_SPM uint16_t *) SPM_BASE;
-  //_SPM const char *spm_input = (_SPM const char *) (SPM_BASE + sizeof(uint16_t)*NR_OF_CHARS);
-  //spm_copy_from_ext(spm_input, input_text, SPM_SIZE - sizeof(uint16_t)*NR_OF_CHARS );
+    _SPM uint16_t *spm_letter_frequencies = (_SPM uint16_t *) SPM_BASE;
+    _SPM char *spm_input = (_SPM char *) (SPM_BASE + SPM_SIZE/2);
 #else /* __PATMOS__ */
-  uint16_t *spm_letter_frequencies = letter_frequencies;
-  //const char *spm_input = invCodeTable;
+    uint16_t *spm_letter_frequencies = letter_frequencies;
+    const char *spm_input = input_text;
 #endif /* __PATMOS__ */
 
 
@@ -94,10 +94,18 @@ static Node *buildHuffmanTree (Node *pool_of_nodes, const char *input_text)
         spm_letter_frequencies[i] = 0;
     }
     //assert(strlen(input_text) < 4096);
-    #pragma loopbound min 0 max 4096
-    /* ai?: loop here max @strlen ; */
-    for (int i = 0; i < MAX_STRING_LENGTH; i++) {
-        spm_letter_frequencies[(unsigned char)input_text[i]]++;
+    #pragma loopbound min 0 max 4
+    for (int j = 0; j< MAX_STRING_LENGTH*2/SPM_SIZE; j++) {
+#if defined(__PATMOS__) && defined(USE_SPM)
+        spm_copy_from_ext(spm_input, input_text + j*SPM_SIZE/2, SPM_SIZE/2);
+#else /* __PATMOS__ */
+        spm_input = input_text + j*SPM_SIZE/2;
+#endif /* __PATMOS__ */
+        #pragma loopbound min 0 max 1024
+        /* ai?: loop here max @strlen ; */
+        for (int i = 0; i < SPM_SIZE/2; i++) {
+            spm_letter_frequencies[(unsigned char)spm_input[i]]++;
+        }
     }
 
     /* Initialize forest with single node trees (one per character) */
