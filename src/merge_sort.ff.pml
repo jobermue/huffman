@@ -3,40 +3,33 @@ format:          pml-0.1
 triple:          patmos-unknown-unknown-elf
 flowfacts:
   - scope:
-      function: fillTable
+      function: merge_sort_nrecursive
     lhs:
       - factor: -128
         program-point:
-          marker : 3
+          marker : 8
       - factor: 1
         program-point:
-          marker : 4
+          marker : 10
+      - factor: 1
+        program-point:
+          marker : 11
+      - factor: 1
+        program-point:
+          marker : 12
     op: less-equal
     rhs: 0
     level: bitcode
     origin: user.bc
   - scope:
-      function: compress
+      function: merge_sort_nrecursive
     lhs:
-      - factor: -28672
+      - factor: -128
         program-point:
-          marker : 5
+          marker : 8
       - factor: 1
         program-point:
-          marker : 6
-    op: less-equal
-    rhs: 0
-    level: bitcode
-    origin: user.bc
-  - scope:
-      function: compress
-    lhs:
-      - factor: -3584
-        program-point:
-          marker : 5
-      - factor: 1
-        program-point:
-          marker : 7
+          marker : 13
     op: less-equal
     rhs: 0
     level: bitcode

@@ -12,6 +12,7 @@ TARGET = test
 SRCS = test.c huffman.c stack.c insertion_sort.c queue.c merge_sort.c
 OBJECTFILES = test.o huffman.o stack.o insertion_sort.o queue.o merge_sort.o
 ANALYSIS_ENTRY = encode
+ANALYSIS_SORT_ENTRY = merge_sort
 
 CC = gcc
 #CC = clang
@@ -106,6 +107,7 @@ platin-wca:
 	  -i $(TARGET).elf.pml \
 	  -i $(PATMOS_CONFIG_PATH) \
 	  -i $(ANALYSIS_ENTRY).ff.pml \
+	  -i $(ANALYSIS_SORT_ENTRY).ff.pml \
 	  -e $(ANALYSIS_ENTRY) \
 	  --enable-wca --disable-ait
 
