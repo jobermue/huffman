@@ -16,6 +16,10 @@
 #include "huffman.h"
 #include "merge_sort.h"
 
+#if defined(__PATMOS__) && defined(USE_SPM)
+#include <machine/spm.h>
+#endif /* __PATMOS__ */
+
 #ifdef ENDEBUG
 #define DEBUG(...) do { fprintf(stderr, __VA_ARGS__); } while(0)
 #else
@@ -188,21 +192,24 @@ static struct code *fillTable(struct code *codeTable, const Node *tree)
  */
 /* ai: instruction "invertCodes" is entered with @nr_of_chars = 128;  */
 /* ai: instruction "invertCodes" is entered with @max_code_length = 15;  */
+#if defined(__PATMOS__) && defined(USE_SPM)
+static void invertCodes(_SPM struct code *codeTable, _SPM struct code *invCodeTable)
+#else
 static void invertCodes(struct code codeTable[], struct code invCodeTable[])
+#endif /* __PATMOS__ */
 {
-    int i;
     codeword_t n, copy;
 
     #pragma loopbound min 0 max 128
     /* ai?: loop here max @nr_of_chars; */
-    for (i=0; i<NR_OF_CHARS; i++){
+    for (uint8_t i=0; i<NR_OF_CHARS; i++){
         n = codeTable[i].codeword;
         copy = 0;
         /* max length of a codeword = max height of Huffman tree <= n */
         /* can be further bounded - see https://groups.google.com/forum/#!topic/comp.compression/m5pj1lDoeU8 */
         #pragma loopbound min 0 max 15
         /* ai?: loop here max @max_code_length; */
-        for (int j = 0; j<codeTable[i].len; j++) {
+        for (uint8_t j = 0; j<codeTable[i].len; j++) {
             /* max length of codeword only for at most 2 codes possible, others are shorter 
              * (or if all have equal length, max possible length is not reached) */
             /* flow is (nr_of_chars+2)*(nr_of_chars-1)/2  - TODO: update this */
@@ -290,22 +297,31 @@ struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes, ch
 {
     struct code codeTable[NR_OF_CHARS], invCodeTable[NR_OF_CHARS];
 
+#if defined(__PATMOS__) && defined(USE_SPM)
+  _SPM struct code *spm_invCodeTable = (_SPM struct code *) SPM_BASE;
+  _SPM struct code *spm_codeTable = (_SPM struct code *) (((char *)SPM_BASE) + sizeof(struct code)*NR_OF_CHARS);
+  //spm_copy_from_ext(B, A, sizeof A);
+#else /* __PATMOS__ */
+  struct code *spm_codeTable = codeTable;
+  struct code *spm_invCodeTable = invCodeTable;
+#endif /* __PATMOS__ */
+
     *tree = buildHuffmanTree(pool_of_nodes, input);
 
     //TODO: put codeTable and invCodeTable into SPM
     #pragma loopbound min 0 max 256
     for (int i = 0; i < NR_OF_CHARS; i++) {
-        codeTable[i] = (struct code) {-1, 0};
-        invCodeTable[i] = (struct code) {-1, 0};
+        spm_codeTable[i] = (struct code) {-1, 0};
+        spm_invCodeTable[i] = (struct code) {-1, 0};
     }
-    fillTable(codeTable, *tree);
-    invertCodes(codeTable, invCodeTable);
+    fillTable(spm_codeTable, *tree);
+    invertCodes(spm_codeTable, spm_invCodeTable);
     /* print code table */
 #ifdef ENDEBUG
     for (int i = 0; i < NR_OF_CHARS; i++) {
-        if (invCodeTable[i].len != 0) {
-            DEBUG("codeTable[%i] - %c: ", i, (char) i);
-            print_code(&invCodeTable[i]);
+        if (spm_invCodeTable[i].len != 0) {
+            DEBUG("spm_codeTable[%i] - %c: ", i, (char) i);
+            print_code(&spm_invCodeTable[i]);
             DEBUG("\n");
         }
     }
@@ -313,7 +329,7 @@ struct bytestream encode(const char *input, Node **tree, Node *pool_of_nodes, ch
 
     //TODO use only invCodeTable, remove codeTable from SPM
     //TODO put input partially into SPM
-    return compress(input, invCodeTable, output);
+    return compress(input, spm_invCodeTable, output);
 }
 
 
