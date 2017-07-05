@@ -15,7 +15,7 @@ testdata.h:24:1: warning: string length ‘4096’ is greater than the length �
 As a first step, a test driver and test cases were created to test the algorithm. For WCET analysis only the `encode` function was analyzed. To ensure, that the algorithm works, a string is first encoded with the Huffman algorithm, and later decoded. The result of the `decode` function was checked against the input of the `encode` function. If the output and the input match, the algorithm works correctly.
 
 The following figure shows the execution times on hardware for `O0`:
-![Figure 1]![Figure 2]![Figure 3]
+![Figure 1]
 
 The following figure shows the execution times on hardware for `O1`:
 ![Figure 2]
@@ -24,6 +24,7 @@ The following figure shows the execution times on hardware for `O2`:
 ![Figure 3]
 
 The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos`:
+
 | Program | local | dcideal | full |
 | ------- | ----- | ------- | ---- |
 | pasim   | TBA   | TBA     | TBA  |
@@ -50,6 +51,10 @@ The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos
 | pasim   | TBA   | TBA     | TBA  |
 | aiT     | TBA   | TBA     | TBA  |
 | patmos  | TBA   | TBA     | TBA  |
+
+## Summary
+
+As the figures above show, applying a single-path generator decreases the WCET, but also reduces the variance of the execution times, which makes it more predictable.
 
 
 # Problem 2: WCET-Oriented Programming
