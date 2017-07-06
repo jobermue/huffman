@@ -25,10 +25,10 @@ The following table summarizes the measured execution time on hardware and with 
 
 | Program  | full (`O0`) | full (`O1`) |
 | -------- | ----------: | ----------: |
-| hardware | 3926401     | 1019826     |
-| pasim    | 6495269     | 1194240     |
-| aiT      | 7104558     | 2839547     |
-| platin   | 14198176    | 2076256     |
+| hardware |  3 926 401  | 1 019 826   |
+| pasim    |  6 495 269  | 1 194 240   |
+| aiT      |  7 104 558  | 2 839 547   |
+| platin   | 14 198 176  | 2 076 256   |
 
 ## Single-Path Code
 
@@ -46,8 +46,8 @@ Results for the WCET analysis with `aiT` and `platin` with single-path generated
 
 | Program  | full (`O0`) | full (`O1`) |
 | -------- | ----------: | ----------: |
-| hardware | 6764448     | 2215091     |
-| pasim    | 9333186     | 2335286     |
+| hardware | 6 764 448   | 2 215 091   |
+| pasim    | 9 333 186   | 2 335 286   |
 | aiT      | -           | -           |
 | platin   | -           | -           |
 
@@ -74,10 +74,10 @@ The following table summarizes the measured execution time on hardware and with 
 
 | Program  | full (`O0`) | full (`O1`) |
 | -------- | ----------: | ----------: |
-| hardware | 3643421     | 715548      |
-| pasim    | 6027783     | 845183      |
-| aiT      | 6072402     | 1902267     |
-| platin   | 12651121    | 1493517     |
+| hardware |  3 643 421  |   715 548   |
+| pasim    |  6 027 783  |   845 183   |
+| aiT      |  6 072 402  | 1 902 267   |
+| platin   | 12 651 121  | 1 493 517   |
 
 ## Single-Path Code
 
@@ -92,8 +92,8 @@ Results for the WCET analysis with `aiT` and `platin` with single-path generated
 
 | Program  | full (`O0`) | full (`O1`) |
 | -------- | ----------: | ----------: |
-| hardware | 6310149     | 1988588     |
-| pasim    | 8739631     | 2118512     |
+| hardware | 6 310 149   | 1 988 588   |
+| pasim    | 8 739 631   | 2 118 512   |
 | aiT      | -           | -           |
 | platin   | -           | -           |
 
@@ -107,7 +107,7 @@ We analyzed our code to find out which data structures are accessed frequently a
 Unfortunately quite a few of them did not fit into the limited size of the SPM (2kB), as can be seen in the following table:
 
 | name                 | size[bytes]  | note |
-| -------------------- | ------------ | ---- |
+| -------------------- | -----------: | ---- |
 | `input_text`         |        4 096 | input text string |
 | `pool_of_nodes`      |        6 120 |      |
 | `letter_frequencies` |          256 |      |
@@ -138,10 +138,10 @@ The following table summarizes the measured execution time on hardware and with 
 
 | Program  | full (`O0`) | full, single-path (`O0`) |
 | -------- | ----------: | -----------------------: |
-| hardware | 3366478     | 6128324                  |
-| pasim    | 5411733     | 8218690                  |
-| aiT      | 5530386     | -                        |
-| platin   | 11995514    | -                        |
+| hardware |  3 366 478  | 6 128 324                |
+| pasim    |  5 411 733  | 8 218 690                |
+| aiT      |  5 530 386  | -                        |
+| platin   | 11 995 514  | -                        |
 
 
 [Huffman implementation]: http://www.programminglogic.com/implementing-huffman-coding-in-c/
