@@ -3,6 +3,9 @@
 
 %files = {'1-hw.csv', '1-pasim-full.csv',  '2-hw.csv',  '2-pasim-full.csv',  '3-hw.csv',  '3-pasim-full.csv'};
 
+x_max = 9333186;
+y_max = 4;
+
 format long
 more off
 set (gca, 'fontname', 'Helvetica', 'fontsize', 20);
@@ -31,68 +34,68 @@ for i = 1:length(files)
   %set(gca,'Xtick',linspace(xData(1),xData(end),numberOfXTicks));
   %set(gca,'DatetimeTickFormat', 'dd/mm');
   %datetick('x', 'dd/mmm'); % sets x-axis display format
-  xlim([0 9333186]);
+  xlim([0 x_max]);
   xlabel('execution time [cycles]') % sets x-axis label
   ylabel('frequency') % sets y-axis label
   title('Distribution of execution times for our testsuite') %set plot title
   grid on % enables grid lines
-  axis([0 9333186 0 6]);
+  axis([0 x_max 0 y_max]);
   set(gca,'layer','top');
   print(['plots/' filename '-o0n.jpg'], '-djpg')
   
   %
   hist(o0s,100)
-  xlim([0 9333186]);
+  xlim([0 x_max]);
   xlabel('execution time [cycles]') % sets x-axis label
   ylabel('frequency') % sets y-axis label
   title('Distribution of execution times for our testsuite') %set plot title
   grid on % enables grid lines
-  axis([0 9333186 0 6]);
+  axis([0 x_max 0 y_max]);
   set(gca,'layer','top');
   print(['plots/' filename '-o0s.jpg'], '-djpg')
 
   %
   hist(o1n,100)
-  xlim([0 9333186]);
+  xlim([0 x_max]);
   xlabel('execution time [cycles]') % sets x-axis label
   ylabel('frequency') % sets y-axis label
   title('Distribution of execution times for our testsuite') %set plot title
   grid on % enables grid lines
-  axis([0 9333186 0 6]);
+  axis([0 x_max 0 y_max]);
   set(gca,'layer','top');
   print(['plots/' filename '-o1n.jpg'], '-djpg')
 
 
   %
   hist(o1s,100)
-  xlim([0 9333186]);
+  xlim([0 x_max]);
   xlabel('execution time [cycles]') % sets x-axis label
   ylabel('frequency') % sets y-axis label
   title('Distribution of execution times for our testsuite') %set plot title
   grid on % enables grid lines
-  axis([0 9333186 0 6]);
+  axis([0 x_max 0 y_max]);
   set(gca,'layer','top');
   print(['plots/' filename '-o1s.jpg'], '-djpg')
 
   %
   hist(o2n,100)
-  xlim([0 9333186]);
+  xlim([0 x_max]);
   xlabel('execution time [cycles]') % sets x-axis label
   ylabel('frequency') % sets y-axis label
   title('Distribution of execution times for our testsuite') %set plot title
   grid on % enables grid lines
-  axis([0 9333186 0 6]);
+  axis([0 x_max 0 y_max]);
   set(gca,'layer','top');
   print(['plots/' filename '-o2n.jpg'], '-djpg')
 
   %
   hist(o2s,100)
-  xlim([0 9333186]);
+  xlim([0 x_max]);
   xlabel('execution time [cycles]') % sets x-axis label
   ylabel('frequency') % sets y-axis label
   title('Distribution of execution times for our testsuite') %set plot title
   grid on % enables grid lines
-  axis([0 9333186 0 6]);
+  axis([0 x_max 0 y_max]);
   set(gca,'layer','top');
   print(['plots/' filename '-o2s.jpg'], '-djpg')
 
