@@ -15,10 +15,10 @@ testdata.h:24:1: warning: string length ‘4096’ is greater than the length �
 As a first step, a test driver and test cases were created to test the algorithm. For WCET analysis only the `encode` function was analyzed. To ensure, that the algorithm works, a string is first encoded with the Huffman algorithm, and later decoded. The result of the `decode` function was checked against the input of the `encode` function. If the output and the input match, the algorithm works correctly.
 
 The following figure shows the execution times with pasim for `-O0`:
-![Figure pasim-o0n]
+![Figure 1-pasim-o0n]
 
 The following figure shows the execution times with pasim for `-O1`:
-![Figure pasim-o1n]
+![Figure 1-pasim-o1n]
 
 The following table summarizes the measured execution time on hardware and with `pasim` and the results of the WCET analysis with `aiT` and `platin`:
 
@@ -35,10 +35,10 @@ The single-path code was generated with the option `-mpatmos-singlepath=encode`.
 
 
 The following figure shows the execution times with pasim for `-O0` with single-path generated code:
-![Figure pasim-o0s]
+![Figure 1-pasim-o0s]
 
 The following figure shows the execution times with pasim for `-O1` with single-path generated code:
-![Figure pasim-o1s]
+![Figure 1-pasim-o1s]
 
 The following table summarizes the measured execution time on hardware and with `pasim`.
 Results for the WCET analysis with `aiT` and `platin` with single-path generated code could not be obtained.
@@ -66,7 +66,7 @@ Whenever possible we replaced `while` and `for` loops, with variable variable lo
 The following figure shows the execution times with pasim for `-O0`:
 ![Figure 2-pasim-o0n]
 
-The following figure shows the execution times with pasim for `-O0`:
+The following figure shows the execution times with pasim for `-O1`:
 ![Figure 2-pasim-o1n]
 
 The following table summarizes the measured execution time on hardware and with `pasim` and the results of the WCET analysis with `aiT` and `platin`:
@@ -102,13 +102,30 @@ The figures show that WCET-oriented programming can reduce the WCET and executio
 
 # Problem 3: Hardware Utilization
 
+The following figure shows the execution times with pasim for `-O0`:
+![Figure 3-pasim-o0n]
+
+The following figure shows the execution times with pasim for `-O0` with single-path generated code:
+![Figure 3-pasim-o0s]
+
+The following table summarizes the measured execution time on hardware and with `pasim` and the results of the WCET analysis with `aiT` and `platin`:
+
+| Program  | full (`O0`) | full, single-path (`O0`) |
+| -------- | ----------: | -----------------------: |
+| hardware | 3366478     | 6128324                  |
+| pasim    | 5411733     | 8218690                  |
+| aiT      | 5530386     | -                        |
+| platin   | 11995514    | -                        |
+
 [Huffman implementation]: http://www.programminglogic.com/implementing-huffman-coding-in-c/
 [non-recursive merge sort]: https://stackoverflow.com/questions/1557894/non-recursive-merge-sort#17957133
-[Figure pasim-o0n]: ./results/plots/1-pasim-full.csv-o0n.jpg
-[Figure pasim-o1n]: ./results/plots/1-pasim-full.csv-o1n.jpg
-[Figure pasim-o0s]: ./results/plots/1-pasim-full.csv-o0s.jpg
-[Figure pasim-o1s]: ./results/plots/1-pasim-full.csv-o1s.jpg
+[Figure 1-pasim-o0n]: ./results/plots/1-pasim-full.csv-o0n.jpg
+[Figure 1-pasim-o1n]: ./results/plots/1-pasim-full.csv-o1n.jpg
+[Figure 1-pasim-o0s]: ./results/plots/1-pasim-full.csv-o0s.jpg
+[Figure 1-pasim-o1s]: ./results/plots/1-pasim-full.csv-o1s.jpg
 [Figure 2-pasim-o0n]: ./results/plots/2-pasim-full.csv-o0n.jpg
 [Figure 2-pasim-o1n]: ./results/plots/2-pasim-full.csv-o1n.jpg
 [Figure 2-pasim-o0s]: ./results/plots/2-pasim-full.csv-o0s.jpg
 [Figure 2-pasim-o1s]: ./results/plots/2-pasim-full.csv-o1s.jpg
+[Figure 3-pasim-o0n]: ./results/plots/3-pasim-full.csv-o0n.jpg
+[Figure 3-pasim-o0s]: ./results/plots/3-pasim-full.csv-o0s.jpg
