@@ -1,14 +1,15 @@
-# huffman
+# Huffman Coding
 
-Implementation of Huffman Coding Algorithm for WCET analysis. Based on the [Huffman implementation] the code used for WCET analysis was changed to fit our needs. This motly effected some algorithms and data structures. Having the code on this basis, we were able to run the code on the hardware.
-Despite the original [Huffman implementation] the nodes of the tree were ordered according to their occurence. This helped to decrese the overall execution time. To sort them, the `insertion sort` algorithm was used.
+This repository provides an implementation of the Huffman coding algorithm for WCET analysis. 
+Based on the [Huffman implementation] the code used for WCET analysis was changed to fit our needs. 
+This mostly effected some algorithms and data structures. 
+We were then able to run the code on the patmos processor.
+One major change in comparison to the original [Huffman implementation] is the construction of the Huffman tree - we order the nodes by occurence of the respective character before combining them into the tree, which helped to decrease the overall execution time. To sort them, the `insertion sort` algorithm was used, as we already had an implementation with loop bounds and flow facts available.
 
-## max length of strings
-testdata.h:24:1: warning: string length ‘4096’ is greater than the length ‘4095’ ISO C99 compilers are required to support [-Woverlength-strings]
-
--> hence we have chosen to limit the length of the input string to 4095 characters (not including null termination).
-
--> this results in a maximal code length of 15 bits
+## Limitations 
+We have chosen to limit the length of the input string to 4096 characters (including null termination), as this is the maximum length C99 compilers support as literals.
+Note that this results in a maximal codeword-length of 15 bits, a fact we used in some of our flow facts and loop bounds.
+Furthermore we only allow ASCII characters (0-127) in our input string, hence the worst-case compression we can achieve is 7/8.
 
 # Problem 1: Introduction
 
