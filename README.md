@@ -14,105 +14,97 @@ testdata.h:24:1: warning: string length ‘4096’ is greater than the length �
 
 As a first step, a test driver and test cases were created to test the algorithm. For WCET analysis only the `encode` function was analyzed. To ensure, that the algorithm works, a string is first encoded with the Huffman algorithm, and later decoded. The result of the `decode` function was checked against the input of the `encode` function. If the output and the input match, the algorithm works correctly.
 
-The following figure shows the execution times on hardware for `O0`:
-![Figure 1]
+The following figure shows the execution times with pasim for `-O0`:
+![Figure pasim-o0n]
 
-The following figure shows the execution times on hardware for `O1`:
-![Figure 2]
+The following figure shows the execution times with pasim for `-O1`:
+![Figure pasim-o1n]
 
-The following figure shows the execution times on hardware for `O2`:
-![Figure 3]
+The following table summarizes the measured execution time on hardware and with `pasim` and the results of the WCET analysis with `aiT` and `platin`:
 
-The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos`:
-
-| Program | local | dcideal | full |
-| ------- | ----- | ------- | ---- |
-| pasim   | TBA   | TBA     | TBA  |
-| aiT     | TBA   | TBA     | TBA  |
-| patmos  | TBA   | TBA     | TBA  |
+| Program  | full (`O0`) | full (`O1`) |
+| -------- | ----------: | ----------: |
+| hardware | 3926401     | 1019826     |
+| pasim    | 6495269     | 1194240     |
+| aiT      | 7104558     | 2839547     |
+| platin   | 14198176    | 2076256     |
 
 ## Single-Path Code
 
-The single-path code was generated with the option `-mpatmos-singlepath=<your_function>`.
+The single-path code was generated with the option `-mpatmos-singlepath=encode`.
 
 
-The following figure shows the execution times on hardware for `O0` witch single-path generated code:
-![Figure 4]
+The following figure shows the execution times with pasim for `-O0` with single-path generated code:
+![Figure pasim-o0s]
 
-The following figure shows the execution times on hardware for `O1` witch single-path generated code:
-![Figure 5]
+The following figure shows the execution times with pasim for `-O1` with single-path generated code:
+![Figure pasim-o1s]
 
-The following figure shows the execution times on hardware for `O2` witch single-path generated code:
-![Figure 6]
+The following table summarizes the measured execution time on hardware and with `pasim`.
+Results for the WCET analysis with `aiT` and `platin` with single-path generated code could not be obtained.
 
-The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos` witch single-path generated code:
-
-| Program | local | dcideal | full |
-| ------- | ----- | ------- | ---- |
-| pasim   | TBA   | TBA     | TBA  |
-| aiT     | TBA   | TBA     | TBA  |
-| patmos  | TBA   | TBA     | TBA  |
+| Program  | full (`O0`) | full (`O1`) |
+| -------- | ----------: | ----------: |
+| hardware | 6764448     | 2215091     |
+| pasim    | 9333186     | 2335286     |
+| aiT      | -           | -           |
+| platin   | -           | -           |
 
 ## Summary
 
-As the figures above show, applying a single-path generator decreases the WCET, but also reduces the variance of the execution times, which makes it more predictable.
+As the figures above show, applying a single-path generator increases the WCET, but reduces the variance of the execution times, which makes it more predictable.
 
 
 # Problem 2: WCET-Oriented Programming
 
 In WCET-oriented programming the aim is to make the algorithm as independent from the input as possible. This results in execution times that do not differ too much from each other, as they increase and move towards the WCET. The positive effect is that the WCET decreases compared to non-WCET oriented implementations.
 
-To achive this goal we replaced the `insertion sort` algorithm with the `merge sort` algorithm, which has worse BCET, but better WCET. We took a [non-recursive merge sort] algorithm to be able to analyze the WCETs with the given tools.
-Another WCET-oriented improvement is to work with an input string of fixed lenth (4096). The remaining string is replaced with `0` which are also processed.
-`while` loops, with variable variable loop iterations, were replaced with `for` loops with a fixed number of loop iterations.
+To achive this goal we replaced the `insertion sort` algorithm with the `merge sort` algorithm, which has better WCET and less execution time variance. We took a [non-recursive merge sort] algorithm to be able to analyze the WCETs with the given tools.
+Another WCET-oriented improvement is to work with an input string of fixed lenth (4096). The remaining string is filled with `0` and are processed. Furthermore we build a huffman tree containing all characters (although possibly with a frequency value of 0), not just those present in the input.
+Whenever possible we replaced `while` and `for` loops, with variable variable loop iterations, by `for` loops with a fixed number of loop iterations.
 
-The following figure shows the execution times on hardware for `O0`:
-![Figure 7]
+The following figure shows the execution times with pasim for `-O0`:
+![Figure 2-pasim-o0n]
 
-The following figure shows the execution times on hardware for `O1`:
-![Figure 8]
+The following figure shows the execution times with pasim for `-O0`:
+![Figure 2-pasim-o1n]
 
-The following figure shows the execution times on hardware for `O2`:
-![Figure 9]
+The following table summarizes the measured execution time on hardware and with `pasim` and the results of the WCET analysis with `aiT` and `platin`:
 
-The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos`:
+| Program  | full (`O0`) | full (`O1`) |
+| -------- | ----------: | ----------: |
+| hardware | 3643421     | 715548      |
+| pasim    | 6027783     | 845183      |
+| aiT      | 6072402     | 1902267     |
+| platin   | 12651121    | 1493517     |
 
-| Program | local | dcideal | full |
-| ------- | ----- | ------- | ---- |
-| pasim   | TBA   | TBA     | TBA  |
-| aiT     | TBA   | TBA     | TBA  |
-| patmos  | TBA   | TBA     | TBA  |
+## Single-Path Code
 
-The following figure shows the execution times on hardware for `O0` with single-path generated code:
-![Figure 10]
+The following figure shows the execution times with pasim for `-O0` with single-path generated code:
+![Figure 2-pasim-o0s]
 
-The following figure shows the execution times on hardware for `O1` with single-path generated code:
-![Figure 11]
+The following figure shows the execution times with pasim for `-O1` with single-path generated code:
+![Figure 2-pasim-o1s]
 
-The following figure shows the execution times on hardware for `O2` with single-path generated code:
-![Figure 12]
+The following table summarizes the measured execution time on hardware and with `pasim`.
+Results for the WCET analysis with `aiT` and `platin` with single-path generated code could not be obtained.
 
-The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos` witch single-path generated code:
-
-| Program | local | dcideal | full |
-| ------- | ----- | ------- | ---- |
-| pasim   | TBA   | TBA     | TBA  |
-| aiT     | TBA   | TBA     | TBA  |
-| patmos  | TBA   | TBA     | TBA  |
+| Program  | full (`O0`) | full (`O1`) |
+| -------- | ----------: | ----------: |
+| hardware | 6310149     | 1988588     |
+| pasim    | 8739631     | 2118512     |
+| aiT      | -           | -           |
+| platin   | -           | -           |
 
 # Problem 3: Hardware Utilization
 
 [Huffman implementation]: http://www.programminglogic.com/implementing-huffman-coding-in-c/
 [non-recursive merge sort]: https://stackoverflow.com/questions/1557894/non-recursive-merge-sort#17957133
-[Figure 1]: ./results/plots/1/o0n.png
-[Figure 2]: ./results/plots/1/o1n.png
-[Figure 3]: ./results/plots/1/o2n.png
-[Figure 4]: ./results/plots/1/o0s.png
-[Figure 5]: ./results/plots/1/o1s.png
-[Figure 6]: ./results/plots/1/o2s.png
-[Figure 7]: ./results/plots/2/o0n.png
-[Figure 8]: ./results/plots/2/o1n.png
-[Figure 9]: ./results/plots/2/o2n.png
-[Figure 10]: ./results/plots/2/o0s.png
-[Figure 11]: ./results/plots/2/o1s.png
-[Figure 12]: ./results/plots/2/o2s.png
+[Figure pasim-o0n]: ./results/plots/1-pasim-full.csv-o0n.jpg
+[Figure pasim-o1n]: ./results/plots/1-pasim-full.csv-o1n.jpg
+[Figure pasim-o0s]: ./results/plots/1-pasim-full.csv-o0s.jpg
+[Figure pasim-o1s]: ./results/plots/1-pasim-full.csv-o1s.jpg
+[Figure 2-pasim-o0n]: ./results/plots/2-pasim-full.csv-o0n.jpg
+[Figure 2-pasim-o1n]: ./results/plots/2-pasim-full.csv-o1n.jpg
+[Figure 2-pasim-o0s]: ./results/plots/2-pasim-full.csv-o0s.jpg
+[Figure 2-pasim-o1s]: ./results/plots/2-pasim-full.csv-o1s.jpg
