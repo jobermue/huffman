@@ -96,6 +96,10 @@ Results for the WCET analysis with `aiT` and `platin` with single-path generated
 | aiT      | -           | -           |
 | platin   | -           | -           |
 
+## Summary
+
+The figures show that WCET-oriented programming can reduce the WCET and execution time variability. The same effect can be observed with single-path code.
+
 # Problem 3: Hardware Utilization
 
 [Huffman implementation]: http://www.programminglogic.com/implementing-huffman-coding-in-c/
