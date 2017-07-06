@@ -102,6 +102,31 @@ The following table summarizes the WCET analysis with `pasim`, `aiT` and `patmos
 
 # Problem 3: Hardware Utilization
 
+We analyzed our code to find out which data structures are accessed frequently and would thus benefit from being put into the SPM.
+Unfortunately quite a few of them did not fit into the limited size of the SPM (2kB), as can be seen in the following table:
+
+| name                 | size[bytes]  | note |
+| -------------------- | ------------ | ---- |
+| `input_text`         |        4 096 | input text string |
+| `pool_of_nodes`      |        6 120 |      |
+| `letter_frequencies` |          256 |      |
+| `array`              |        3 072 | actually an array of pointers to part of `pool_of_nodes` |
+| `array_q2`           |        3 048 | actually an array of pointers to part of `pool_of_nodes` |
+| `tree`               |        6 120 | actually a pointer to root node (all nodes of tree in `pool_of_nodes`) |
+| `codeTable`          |          512 |      |
+| `entries`            |        2 048 | form the stack used in buildHuffmanTree |
+| `invCodeTable`       |          512 |      |
+| `output`             |        3 584 | encoded output string |
+
+Hence we resorted to only putting the following data structures into the SPM:
+ * `codeTable`
+ * `invCodeTable`
+ * `letter frequencies`
+
+We furthermore conducted a few experiments to see whether putting parts of the larger data structure into the SPM would decrease execution time, 
+but all of these trials increased the execution time (see branches `spm-input` and `spm-sort`).
+
+
 [Huffman implementation]: http://www.programminglogic.com/implementing-huffman-coding-in-c/
 [non-recursive merge sort]: https://stackoverflow.com/questions/1557894/non-recursive-merge-sort#17957133
 [Figure 1]: ./results/plots/1/o0n.png
